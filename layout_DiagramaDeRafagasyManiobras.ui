@@ -1,0 +1,477 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>716</width>
+    <height>545</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <widget class="QTabWidget" name="PlotArea">
+   <property name="geometry">
+    <rect>
+     <x>250</x>
+     <y>30</y>
+     <width>431</width>
+     <height>361</height>
+    </rect>
+   </property>
+   <property name="currentIndex">
+    <number>0</number>
+   </property>
+   <widget class="QWidget" name="gust_tab">
+    <attribute name="title">
+     <string>Gust Diagram</string>
+    </attribute>
+   </widget>
+   <widget class="QWidget" name="manoeuvre_tab">
+    <attribute name="title">
+     <string>Manoeuvre Diagram</string>
+    </attribute>
+   </widget>
+   <widget class="QWidget" name="combined_tab">
+    <attribute name="title">
+     <string>Combined Diagram</string>
+    </attribute>
+   </widget>
+  </widget>
+  <widget class="QLabel" name="InputData_label">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>10</y>
+     <width>91</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+     <weight>75</weight>
+     <bold>true</bold>
+     <underline>true</underline>
+    </font>
+   </property>
+   <property name="text">
+    <string>Input Data</string>
+   </property>
+  </widget>
+  <widget class="QWidget" name="layoutWidget">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>140</y>
+     <width>194</width>
+     <height>151</height>
+    </rect>
+   </property>
+   <layout class="QVBoxLayout" name="W_group_layout">
+    <item>
+     <layout class="QHBoxLayout" name="MTOW_layout">
+      <item>
+       <widget class="QLabel" name="MTOW_label">
+        <property name="text">
+         <string>MTOW =</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="MTOW_lineEdit"/>
+      </item>
+      <item>
+       <widget class="QLabel" name="MTOW_unitlabel">
+        <property name="text">
+         <string>Kg</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="MLW_layout">
+      <item>
+       <widget class="QLabel" name="MLW_label">
+        <property name="text">
+         <string>MLW=</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="MLW_lineEdit"/>
+      </item>
+      <item>
+       <widget class="QLabel" name="MLW_unitlabel">
+        <property name="text">
+         <string>Kg</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="MZFW_layout">
+      <item>
+       <widget class="QLabel" name="MZFW_label">
+        <property name="text">
+         <string>MZFW=</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="MZFW_lineEdit"/>
+      </item>
+      <item>
+       <widget class="QLabel" name="MZFW_unitlabel">
+        <property name="text">
+         <string>Kg</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="W0_layout">
+      <item>
+       <widget class="QLabel" name="W0_label">
+        <property name="text">
+         <string>W0=</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="W0_lineEdit"/>
+      </item>
+      <item>
+       <widget class="QLabel" name="W0_unitlabel">
+        <property name="text">
+         <string>Kg</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QWidget" name="layoutWidget">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>310</y>
+     <width>200</width>
+     <height>136</height>
+    </rect>
+   </property>
+   <layout class="QVBoxLayout" name="Cl_group_layout">
+    <item>
+     <layout class="QHBoxLayout" name="a3D_layout">
+      <item>
+       <widget class="QLabel" name="a3D_label">
+        <property name="text">
+         <string>a3D =</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="a3D_lineEdit"/>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="clmax_layout">
+      <item>
+       <widget class="QLabel" name="clmax_label">
+        <property name="text">
+         <string>Cl_max =</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="clmax_lineEdit"/>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="clmax_flap_layout">
+      <item>
+       <widget class="QLabel" name="clmax_flap_label">
+        <property name="text">
+         <string>Cl_max_flap =</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="clmax_flap_lineEdit"/>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="clmin_layout">
+      <item>
+       <widget class="QLabel" name="clmin_label">
+        <property name="text">
+         <string>Cl_min =</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="clmax_lineEdit_3"/>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QWidget" name="layoutWidget">
+   <property name="geometry">
+    <rect>
+     <x>250</x>
+     <y>400</y>
+     <width>196</width>
+     <height>101</height>
+    </rect>
+   </property>
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <layout class="QHBoxLayout" name="W_layout">
+      <item>
+       <widget class="QLabel" name="W_label">
+        <property name="text">
+         <string>W =</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="W_lineEdit"/>
+      </item>
+      <item>
+       <widget class="QLabel" name="W_unitlabel">
+        <property name="text">
+         <string>Kg</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="h_layout">
+      <item>
+       <widget class="QLabel" name="h_label">
+        <property name="text">
+         <string>h =</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="h_lineEdit"/>
+      </item>
+      <item>
+       <widget class="QLabel" name="h_unitlabel">
+        <property name="text">
+         <string>m</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="den_layout">
+      <item>
+       <widget class="QLabel" name="den_label">
+        <property name="text">
+         <string>den =</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="den_lineEdit"/>
+      </item>
+      <item>
+       <widget class="QLabel" name="den_unitlabel">
+        <property name="text">
+         <string>kg/m³</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QWidget" name="layoutWidget">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>60</y>
+     <width>191</width>
+     <height>66</height>
+    </rect>
+   </property>
+   <layout class="QVBoxLayout" name="geometry_group_layout">
+    <item>
+     <layout class="QHBoxLayout" name="CAM_layout">
+      <item>
+       <widget class="QLabel" name="CAM_label">
+        <property name="text">
+         <string>CAM =</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="CAM_lineEdit"/>
+      </item>
+      <item>
+       <widget class="QLabel" name="CAM_unitlabel">
+        <property name="text">
+         <string>m</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="sw_layout">
+      <item>
+       <widget class="QLabel" name="sw_label">
+        <property name="text">
+         <string>sw =</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="sw_lineEdit"/>
+      </item>
+      <item>
+       <widget class="QLabel" name="sw_unitlabel">
+        <property name="text">
+         <string>m^2</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QWidget" name="layoutWidget">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>460</y>
+     <width>191</width>
+     <height>66</height>
+    </rect>
+   </property>
+   <layout class="QVBoxLayout" name="performace_group_layout">
+    <item>
+     <layout class="QHBoxLayout" name="Zmo_layout">
+      <item>
+       <widget class="QLabel" name="Zmo_label">
+        <property name="text">
+         <string>Zmo=</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="Zmo_lineEdit"/>
+      </item>
+      <item>
+       <widget class="QLabel" name="Zmo_unitlabel">
+        <property name="text">
+         <string>m</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="Vc_layout">
+      <item>
+       <widget class="QLabel" name="Vc_label">
+        <property name="text">
+         <string>Vc =</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="Vc_lineEdit"/>
+      </item>
+      <item>
+       <widget class="QLabel" name="Vc_unitlabel">
+        <property name="text">
+         <string>m/s</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QPushButton" name="grafiacar_pushButton">
+   <property name="geometry">
+    <rect>
+     <x>580</x>
+     <y>410</y>
+     <width>111</width>
+     <height>51</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Graficar</string>
+   </property>
+  </widget>
+  <widget class="QGroupBox" name="units_groupBox">
+   <property name="geometry">
+    <rect>
+     <x>460</x>
+     <y>409</y>
+     <width>121</width>
+     <height>60</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>Units</string>
+   </property>
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout_2">
+    <item>
+     <widget class="QRadioButton" name="SI_radioButton">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="text">
+       <string>SI</string>
+      </property>
+      <property name="checked">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QRadioButton" name="IM_radioButton">
+      <property name="text">
+       <string>IM</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <zorder>PlotArea</zorder>
+  <zorder>InputData_label</zorder>
+  <zorder>layoutWidget</zorder>
+  <zorder>layoutWidget</zorder>
+  <zorder>layoutWidget</zorder>
+  <zorder>layoutWidget</zorder>
+  <zorder>layoutWidget</zorder>
+  <zorder>grafiacar_pushButton</zorder>
+  <zorder>units_groupBox</zorder>
+  <zorder>SI_radioButton</zorder>
+  <zorder>IM_radioButton</zorder>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
