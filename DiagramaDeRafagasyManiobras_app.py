@@ -38,7 +38,54 @@ class DiagramaDeRafagasyManiobrasDialog(QFrame, layout_DiagramaDeRafagasyManiobr
         self.weight_label = {'IM':'lb', 'SI':'kg'}
         self.speed_label = {'IM':'ft/s', 'SI':'m/s'}
         self.den_label =  {'IM':'slug/ft^2', 'SI':'kg/m^3'}
+
+        ft2m = 0.3048
+        lb2kg = 0.453592
+        slugcuft2kgm3 = 515.379
         # Creo algunas variables que generales que luego voy a usar
+        self.CAM = {'SI':[],'IM':[]}
+        self.sw = {'SI':[],'IM':[]}
+        self.MTOW = {'SI':[],'IM':[]}
+        self.MLW = {'SI':[],'IM':[]}
+        self.W0 = {'SI':[],'IM':[]}
+        self.MZFW = {'SI':[],'IM':[]}
+        self.Vc = {'SI':[],'IM':[]}
+        self.Zmo = {'SI':[],'IM':[]}
+
+
+        self.CAM['IM'] = self.CAM['SI']/ft2m
+        self.sw['IM']= self.sw['SI']/ft2m/ft2m
+        self.MTOW['IM'] = self.MTOW['SI']/lb2kg
+        self.MLW['IM'] = self.MLW['SI']/lb2kg
+        self.W0['IM'] = self.W0['SI']/lb2kg
+        self.MZFW['IM'] = self.MZFW['SI']/lb2kg
+        self.Vc['IM'] = self.Vc['SI']/ft2m
+        self.a3D = 5.0037 # 1/rad
+        self.clmax = 1.2463
+        self.clmax_flap = 1.499
+        self.clmin = -0.75*self.clmax
+        self.Zmo['IM'] = self.Zmo['SI']/ft2m
+
+        # Variables
+        self.W = {'SI':20000}
+        self.h = {'SI':5000}
+        self.den = {'SI':0.125}
+
+        self.W['IM'] = self.W['SI']/lb2kg
+        self.h['IM'] = self.h['SI']/ft2m
+        self.den['IM'] = self.den['SI']/lb2kg*ft2m**3
+
+        # constantes
+        cte_fgz = {'IM':250000}
+        cte_fgz['SI']=cte_fgz['IM']*ft2m
+        s = {'IM':100.015}
+        s['SI'] = s['IM']*ft2m
+        gravedad = {'SI':9.81}
+        gravedad['IM'] = gravedad['SI']*ft2m/lb2kg
+        cte_nmax_1= {'IM':24000}
+        cte_nmax_1['SI'] = cte_nmax_1['IM']*lb2kg
+        cte_nmax_2= {'IM':10000}
+        cte_nmax_2['SI'] = cte_nmax_1['IM']*lb2kg
 
         # Actualizo los labels:
         self.update_units()
@@ -57,7 +104,7 @@ class DiagramaDeRafagasyManiobrasDialog(QFrame, layout_DiagramaDeRafagasyManiobr
         else: return -1;
 
         print(self.units)
-        
+
         # Actualizo unitlabels
         self.CAM_unitlabel.setText(self.length_label[self.units])
         self.sw_unitlabel.setText(self.area_label[self.units])
@@ -70,6 +117,19 @@ class DiagramaDeRafagasyManiobrasDialog(QFrame, layout_DiagramaDeRafagasyManiobr
         self.h_unitlabel.setText(self.length_label[self.units])
         self.den_unitlabel.setText(self.den_label[self.units])
         self.Vc_unitlabel.setText(self.speed_label[self.units])
+
+        # Actualizo los valores
+        self.CAM_lineEdit.setText(self.CAM[self.units])
+        self.sw_lineEdit.setText(self.sw[self.units])
+        self.MTOW_lineEdit.setText(self.MROW[self.units])
+        self.MLW_lineEdit.setText(self.MLW[self.units])
+        self.MZFW_lineEdit.setText(self.MZFW[self.units])
+        self.W0_lineEdit.setText(self.W0[self.units])
+        self.W_lineEdit.setText(self.W[self.units])
+        self.Zmo_lineEdit.setText(self.Zmo[self.units])
+        self.h_lineEdit.setText(self.h[self.units])
+        self.den_lineEdit.setText(self.den[self.units])
+        self.Vc_lineEdit.setText(self.Vc[self.units])
 
         # Actualizo Lineedits
 
