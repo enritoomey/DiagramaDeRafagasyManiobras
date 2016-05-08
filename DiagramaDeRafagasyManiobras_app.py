@@ -39,53 +39,39 @@ class DiagramaDeRafagasyManiobrasDialog(QFrame, layout_DiagramaDeRafagasyManiobr
         self.speed_label = {'IM':'ft/s', 'SI':'m/s'}
         self.den_label =  {'IM':'slug/ft^2', 'SI':'kg/m^3'}
 
-        ft2m = 0.3048
-        lb2kg = 0.453592
-        slugcuft2kgm3 = 515.379
+        self.ft2m = 0.3048
+        self.lb2kg = 0.453592
+        self.slugcuft2kgm3 = 515.379
         # Creo algunas variables que generales que luego voy a usar
-        self.CAM = {'SI':[],'IM':[]}
-        self.sw = {'SI':[],'IM':[]}
-        self.MTOW = {'SI':[],'IM':[]}
-        self.MLW = {'SI':[],'IM':[]}
-        self.W0 = {'SI':[],'IM':[]}
-        self.MZFW = {'SI':[],'IM':[]}
-        self.Vc = {'SI':[],'IM':[]}
-        self.Zmo = {'SI':[],'IM':[]}
+        self.CAM = {'SI':0,'IM':0}
+        self.sw = {'SI':0,'IM':0}
+        self.MTOW = {'SI':0,'IM':0}
+        self.MLW = {'SI':0,'IM':0}
+        self.W0 = {'SI':0,'IM':0}
+        self.MZFW = {'SI':0,'IM':0}
+        self.Vc = {'SI':0,'IM':0}
+        self.Zmo = {'SI':0,'IM':0}
+        self.W = {'SI':0,'IM':0}
+        self.h = {'SI':0,'IM':0}
+        self.den = {'SI':0,'IM':0}
 
-
-        self.CAM['IM'] = self.CAM['SI']/ft2m
-        self.sw['IM']= self.sw['SI']/ft2m/ft2m
-        self.MTOW['IM'] = self.MTOW['SI']/lb2kg
-        self.MLW['IM'] = self.MLW['SI']/lb2kg
-        self.W0['IM'] = self.W0['SI']/lb2kg
-        self.MZFW['IM'] = self.MZFW['SI']/lb2kg
-        self.Vc['IM'] = self.Vc['SI']/ft2m
         self.a3D = 5.0037 # 1/rad
         self.clmax = 1.2463
         self.clmax_flap = 1.499
         self.clmin = -0.75*self.clmax
-        self.Zmo['IM'] = self.Zmo['SI']/ft2m
 
-        # Variables
-        self.W = {'SI':20000}
-        self.h = {'SI':5000}
-        self.den = {'SI':0.125}
-
-        self.W['IM'] = self.W['SI']/lb2kg
-        self.h['IM'] = self.h['SI']/ft2m
-        self.den['IM'] = self.den['SI']/lb2kg*ft2m**3
-
+        # input_data = {self.CAM:self.CAM_lineEdit, self.sw:self.sw_lineEdit}
         # constantes
         cte_fgz = {'IM':250000}
-        cte_fgz['SI']=cte_fgz['IM']*ft2m
+        cte_fgz['SI']=cte_fgz['IM']*self.ft2m
         s = {'IM':100.015}
-        s['SI'] = s['IM']*ft2m
+        s['SI'] = s['IM']*self.ft2m
         gravedad = {'SI':9.81}
-        gravedad['IM'] = gravedad['SI']*ft2m/lb2kg
+        gravedad['IM'] = gravedad['SI']*self.ft2m/self.lb2kg
         cte_nmax_1= {'IM':24000}
-        cte_nmax_1['SI'] = cte_nmax_1['IM']*lb2kg
+        cte_nmax_1['SI'] = cte_nmax_1['IM']*self.lb2kg
         cte_nmax_2= {'IM':10000}
-        cte_nmax_2['SI'] = cte_nmax_1['IM']*lb2kg
+        cte_nmax_2['SI'] = cte_nmax_1['IM']*self.lb2kg
 
         # Actualizo los labels:
         self.update_units()
@@ -94,16 +80,45 @@ class DiagramaDeRafagasyManiobrasDialog(QFrame, layout_DiagramaDeRafagasyManiobr
         self.connect(self.IM_radioButton,SIGNAL("clicked()"), self.update_units)
         self.connect(self.SI_radioButton,SIGNAL("clicked()"), self.update_units)
 
+        # self.CAM_lineEdit.textChanged()
+        # self.connect(self.CAM_lineEdit,SIGNAL("textEdited(const dict&, const QString&)"),
+        #              self.lecturadatos)
+        self.CAM_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.CAM, float(self.CAM_lineEdit.text()), self.ft2m))
+        self.sw_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.sw, float(self.sw_lineEdit.text()),self.ft2m**2))
+        self.MTOW_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.MTOW, float(self.MTOW_lineEdit.text()),self.lb2kg))
+        self.MLW_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.MLW, float(self.MLW_lineEdit.text()),self.lb2kg))
+        self.MZFW_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.MZFW, float(self.MZFW_lineEdit.text()),self.lb2kg))
+        self.W0_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.W0, float(self.W0_lineEdit.text()),self.lb2kg))
+
+        self.a3D_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.a3D, float(self.a3D_lineEdit.text()),[]))
+        self.clmax_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.clmax, float(self.clmax_lineEdit.text())))
+        self.clmax_flap_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.clmax_flap, float(self.clmax_flap_lineEdit.text())))
+
+        self.Zmo_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.Zmo, float(self.Zmo_lineEdit.text()),self.ft2m))
+        self.Vc_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.Vc, float(self.Vc_lineEdit.text()),self.ft2m))
+
+        self.W_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.W, float(self.W_lineEdit.text()),self.lb2kg))
+        self.h_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.h, float(self.h_lineEdit.text()),self.ft2m))
+        self.den_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.den, float(self.den_lineEdit.text()),self.lb2kg*self.ft2m**3))
+
+        self.grafiacar_pushButton.clicked.connect(self.Calculos)
+
+    def lecturadatos(self, variable, value, unitConverter = []):
+        print(value)
+        if  not unitConverter: variable = value
+        elif self.units ==  'IM':
+            variable['IM'] = value
+            variable['SI'] = value*unitConverter
+        else:
+            variable['SI'] = value
+            variable['IM'] = value/unitConverter
+
     def update_units(self):
         if self.IM_radioButton.isChecked():
             self.units = "IM"
-            print "IM"
         elif self.SI_radioButton.isChecked():
             self.units = "SI"
-            print "SI"
         else: return -1;
-
-        print(self.units)
 
         # Actualizo unitlabels
         self.CAM_unitlabel.setText(self.length_label[self.units])
@@ -119,22 +134,37 @@ class DiagramaDeRafagasyManiobrasDialog(QFrame, layout_DiagramaDeRafagasyManiobr
         self.Vc_unitlabel.setText(self.speed_label[self.units])
 
         # Actualizo los valores
-        self.CAM_lineEdit.setText(self.CAM[self.units])
-        self.sw_lineEdit.setText(self.sw[self.units])
-        self.MTOW_lineEdit.setText(self.MROW[self.units])
-        self.MLW_lineEdit.setText(self.MLW[self.units])
-        self.MZFW_lineEdit.setText(self.MZFW[self.units])
-        self.W0_lineEdit.setText(self.W0[self.units])
-        self.W_lineEdit.setText(self.W[self.units])
-        self.Zmo_lineEdit.setText(self.Zmo[self.units])
-        self.h_lineEdit.setText(self.h[self.units])
-        self.den_lineEdit.setText(self.den[self.units])
-        self.Vc_lineEdit.setText(self.Vc[self.units])
+        self.CAM_lineEdit.setText(str(self.CAM[self.units]))
+        self.sw_lineEdit.setText(str(self.sw[self.units]))
+        self.MTOW_lineEdit.setText(str(self.MTOW[self.units]))
+        self.MLW_lineEdit.setText(str(self.MLW[self.units]))
+        self.MZFW_lineEdit.setText(str(self.MZFW[self.units]))
+        self.W0_lineEdit.setText(str(self.W0[self.units]))
+        self.W_lineEdit.setText(str(self.W[self.units]))
+        self.Zmo_lineEdit.setText(str(self.Zmo[self.units]))
+        self.h_lineEdit.setText(str(self.h[self.units]))
+        self.den_lineEdit.setText(str(self.den[self.units]))
+        self.Vc_lineEdit.setText(str(self.Vc[self.units]))
 
-        # Actualizo Lineedits
+    def Calculos(self):
+        print("CAM = {}".format(self.CAM[self.units]))
+        print("Sw = {}".format(self.sw[self.units]))
+        print("MTOW = {}".format(self.MTOW[self.units]))
+        print("MLW = {}".format(self.MLW[self.units]))
+        print("MZFW = {}".format(self.MZFW[self.units]))
+        print("W0 = {}".format(self.W0[self.units]))
+        print("a3D = {}".format(self.a3D))
+        print("clmax = {}".format(self.clmax))
+        print("clmax_flap = {}".format(self.clmax_flap))
+        print("clmin = {}".format(self.clmin))
+        print("Zmo = {}".format(self.Zmo[self.units]))
+        print("Vc = {}".format(self.Vc[self.units]))
 
 
-    # self.Q = []
+
+
+
+# self.Q = []
     # self.gamma_aire = 1.4
     # self.R_aire = 287
     # #Defino las formulas quimicas para selecionar en formulas_comboBox
