@@ -43,17 +43,17 @@ class DiagramaDeRafagasyManiobrasDialog(QFrame, layout_DiagramaDeRafagasyManiobr
         self.lb2kg = 0.453592
         self.slugcuft2kgm3 = 515.379
         # Creo algunas variables que generales que luego voy a usar
-        self.CAM = {'SI':0,'IM':0}
-        self.sw = {'SI':0,'IM':0}
-        self.MTOW = {'SI':0,'IM':0}
-        self.MLW = {'SI':0,'IM':0}
-        self.W0 = {'SI':0,'IM':0}
-        self.MZFW = {'SI':0,'IM':0}
-        self.Vc = {'SI':0,'IM':0}
-        self.Zmo = {'SI':0,'IM':0}
-        self.W = {'SI':0,'IM':0}
-        self.h = {'SI':0,'IM':0}
-        self.den = {'SI':0,'IM':0}
+        self.CAM = {'SI': 0, 'IM': 0}
+        self.sw = {'SI': 0, 'IM': 0}
+        self.MTOW = {'SI': 0, 'IM': 0}
+        self.MLW = {'SI': 0, 'IM': 0}
+        self.W0 = {'SI': 0, 'IM': 0}
+        self.MZFW = {'SI': 0, 'IM': 0}
+        self.Vc = {'SI': 0, 'IM': 0}
+        self.Zmo = {'SI': 0, 'IM': 0}
+        self.W = {'SI': 0, 'IM': 0}
+        self.h = {'SI': 0, 'IM': 0}
+        self.den = {'SI': 0, 'IM': 0}
 
         self.a3D = 5.0037 # 1/rad
         self.clmax = 1.2463
