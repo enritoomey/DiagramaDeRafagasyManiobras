@@ -8,10 +8,10 @@ import sys
 import matplotlib  # Para los graficos
 from PySide.QtCore import *
 from PySide.QtGui import *  # importo todas las funciones de pyside
-from matplotlib.backends.qt4_editor.formlayout import QDialog
+# from matplotlib.backends.qt4_editor.formlayout import QDialog
 
 matplotlib.use('Qt4Agg')
-matplotlib.rcParams['backend.qt4']='PySide'
+matplotlib.rcParams['backend.qt4'] = 'PySide'
 # Estas lineas son un poco misteriosas, pero son las que me permite
 # vincular los Widget de Qt/Pyside con matplotlib
 
@@ -27,22 +27,22 @@ __appName__ = 'Diagrama de Rafagas y Maniobras'
 class DiagramaDeRafagasyManiobrasDialog(QFrame, layout_DiagramaDeRafagasyManiobras.Ui_Form):
 
     # Estas lineas son medias magicas, pero siempre van:
-    def __init__(self,parent=None):
+    def __init__(self, parent=None):
         super(DiagramaDeRafagasyManiobrasDialog, self).__init__(parent)
         self.setupUi(self)
         self.setWindowTitle(__appName__)
 
         # Define input unit's label for SI and IM
-        self.length_label = {'IM':'ft', 'SI':'m'}
-        self.area_label = {'IM':'ft^2', 'SI':'m^2'}
-        self.weight_label = {'IM':'lb', 'SI':'kg'}
-        self.speed_label = {'IM':'ft/s', 'SI':'m/s'}
-        self.den_label =  {'IM':'slug/ft^2', 'SI':'kg/m^3'}
+        self.length_label = {'IM': 'ft', 'SI': 'm'}
+        self.area_label = {'IM': 'ft^2', 'SI': 'm^2'}
+        self.weight_label = {'IM': 'lb', 'SI': 'kg'}
+        self.speed_label = {'IM': 'ft/s', 'SI': 'm/s'}
+        self.den_label = {'IM': 'slug/ft^2', 'SI': 'kg/m^3'}
 
         self.ft2m = 0.3048
         self.lb2kg = 0.453592
         self.slugcuft2kgm3 = 515.379
-        # Creo algunas variables que generales que luego voy a usar
+        # Creo algunas variables generales que luego voy a usar
         self.CAM = {'SI': 0, 'IM': 0}
         self.sw = {'SI': 0, 'IM': 0}
         self.MTOW = {'SI': 0, 'IM': 0}
@@ -55,58 +55,59 @@ class DiagramaDeRafagasyManiobrasDialog(QFrame, layout_DiagramaDeRafagasyManiobr
         self.h = {'SI': 0, 'IM': 0}
         self.den = {'SI': 0, 'IM': 0}
 
-        self.a3D = 5.0037 # 1/rad
+        self.a3D = 5.0037# 1/rad
         self.clmax = 1.2463
         self.clmax_flap = 1.499
         self.clmin = -0.75*self.clmax
 
         # input_data = {self.CAM:self.CAM_lineEdit, self.sw:self.sw_lineEdit}
         # constantes
-        cte_fgz = {'IM':250000}
-        cte_fgz['SI']=cte_fgz['IM']*self.ft2m
-        s = {'IM':100.015}
+        cte_fgz = {'IM': 250000}
+        cte_fgz['SI'] = cte_fgz['IM']*self.ft2m
+        s = {'IM': 100.015}
         s['SI'] = s['IM']*self.ft2m
-        gravedad = {'SI':9.81}
+        gravedad = {'SI': 9.81}
         gravedad['IM'] = gravedad['SI']*self.ft2m/self.lb2kg
-        cte_nmax_1= {'IM':24000}
+        cte_nmax_1 = {'IM': 24000}
         cte_nmax_1['SI'] = cte_nmax_1['IM']*self.lb2kg
-        cte_nmax_2= {'IM':10000}
+        cte_nmax_2 = {'IM': 10000}
         cte_nmax_2['SI'] = cte_nmax_1['IM']*self.lb2kg
 
         # Actualizo los labels:
         self.update_units()
 
         # SIGNALS & SLOTS
-        self.connect(self.IM_radioButton,SIGNAL("clicked()"), self.update_units)
-        self.connect(self.SI_radioButton,SIGNAL("clicked()"), self.update_units)
+        self.connect(self.IM_radioButton, SIGNAL("clicked()"), self.update_units)
+        self.connect(self.SI_radioButton, SIGNAL("clicked()"), self.update_units)
 
         # self.CAM_lineEdit.textChanged()
         # self.connect(self.CAM_lineEdit,SIGNAL("textEdited(const dict&, const QString&)"),
         #              self.lecturadatos)
         self.CAM_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.CAM, float(self.CAM_lineEdit.text()), self.ft2m))
-        self.sw_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.sw, float(self.sw_lineEdit.text()),self.ft2m**2))
-        self.MTOW_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.MTOW, float(self.MTOW_lineEdit.text()),self.lb2kg))
-        self.MLW_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.MLW, float(self.MLW_lineEdit.text()),self.lb2kg))
-        self.MZFW_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.MZFW, float(self.MZFW_lineEdit.text()),self.lb2kg))
-        self.W0_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.W0, float(self.W0_lineEdit.text()),self.lb2kg))
+        self.sw_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.sw, float(self.sw_lineEdit.text()), self.ft2m**2))
+        self.MTOW_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.MTOW, float(self.MTOW_lineEdit.text()), self.lb2kg))
+        self.MLW_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.MLW, float(self.MLW_lineEdit.text()), self.lb2kg))
+        self.MZFW_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.MZFW, float(self.MZFW_lineEdit.text()), self.lb2kg))
+        self.W0_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.W0, float(self.W0_lineEdit.text()), self.lb2kg))
 
-        self.a3D_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.a3D, float(self.a3D_lineEdit.text()),[]))
+        self.a3D_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.a3D, float(self.a3D_lineEdit.text()), []))
         self.clmax_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.clmax, float(self.clmax_lineEdit.text())))
         self.clmax_flap_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.clmax_flap, float(self.clmax_flap_lineEdit.text())))
 
-        self.Zmo_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.Zmo, float(self.Zmo_lineEdit.text()),self.ft2m))
-        self.Vc_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.Vc, float(self.Vc_lineEdit.text()),self.ft2m))
+        self.Zmo_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.Zmo, float(self.Zmo_lineEdit.text()), self.ft2m))
+        self.Vc_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.Vc, float(self.Vc_lineEdit.text()), self.ft2m))
 
-        self.W_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.W, float(self.W_lineEdit.text()),self.lb2kg))
-        self.h_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.h, float(self.h_lineEdit.text()),self.ft2m))
-        self.den_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.den, float(self.den_lineEdit.text()),self.lb2kg*self.ft2m**3))
+        self.W_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.W, float(self.W_lineEdit.text()), self.lb2kg))
+        self.h_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.h, float(self.h_lineEdit.text()), self.ft2m))
+        self.den_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.den, float(self.den_lineEdit.text()), self.lb2kg*self.ft2m**3))
 
         self.grafiacar_pushButton.clicked.connect(self.Calculos)
 
     def lecturadatos(self, variable, value, unitConverter = []):
         print(value)
-        if  not unitConverter: variable = value
-        elif self.units ==  'IM':
+        if not unitConverter:
+            variable = value
+        elif self.units == 'IM':
             variable['IM'] = value
             variable['SI'] = value*unitConverter
         else:
@@ -118,7 +119,8 @@ class DiagramaDeRafagasyManiobrasDialog(QFrame, layout_DiagramaDeRafagasyManiobr
             self.units = "IM"
         elif self.SI_radioButton.isChecked():
             self.units = "SI"
-        else: return -1;
+        else:
+            return -1
 
         # Actualizo unitlabels
         self.CAM_unitlabel.setText(self.length_label[self.units])
