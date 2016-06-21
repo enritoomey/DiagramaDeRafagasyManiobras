@@ -5,6 +5,8 @@
 """
 
 import sys
+sys.path.append('./atmosfera_estandar')
+
 import matplotlib  # Para los graficos
 from PySide.QtCore import *
 from PySide.QtGui import *  # importo todas las funciones de pyside
@@ -20,7 +22,7 @@ from matplotlib.figure import Figure
 # from excepciones import NumeroNegativoError,MayorAUnoError,TemperaturaIncompatibleError
 import numpy as np # Para las cuentas
 import layout_DiagramaDeRafagasyManiobras # importo las clases creadas con Qt y pyside
-# import GUI_atmosfera_estandar # todavia no voy a usar esta clase
+import GUI_atmosfera_estandar # todavia no voy a usar esta clase
 __appName__ = 'Diagrama de Rafagas y Maniobras'
 
 # Creo la clase principal, llamada ""Main Dialog"
@@ -79,6 +81,7 @@ class DiagramaDeRafagasyManiobrasDialog(QFrame, layout_DiagramaDeRafagasyManiobr
         # SIGNALS & SLOTS
         self.connect(self.IM_radioButton, SIGNAL("clicked()"), self.update_units)
         self.connect(self.SI_radioButton, SIGNAL("clicked()"), self.update_units)
+        self.connect(self.Altura_Button, SIGNAL("clicked()"), self.seleccionAltura)
 
         # self.CAM_lineEdit.textChanged()
         # self.connect(self.CAM_lineEdit,SIGNAL("textEdited(const dict&, const QString&)"),
@@ -161,6 +164,14 @@ class DiagramaDeRafagasyManiobrasDialog(QFrame, layout_DiagramaDeRafagasyManiobr
         print("clmin = {}".format(self.clmin))
         print("Zmo = {}".format(self.Zmo[self.units]))
         print("Vc = {}".format(self.Vc[self.units]))
+
+    def seleccionAltura(self):
+        dialogo = GUI_atmosfera_estandar.MainDialog()
+        if dialogo.exec_():
+            self.h[self.units] = dialogo.atmosfera['h']
+            self.den[self.units] = dialogo.atmosfera['rho']
+            self.h_lineEdit.setText(str(self.h[self.units]))
+            self.den_lineEdit.setText(str(self.den[self.units]))
 
 
 

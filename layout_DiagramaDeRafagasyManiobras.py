@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'layout_DiagramaDeRafagasyManiobras.ui'
 #
-# Created: Tue May  3 01:42:34 2016
+# Created: Tue Jun 21 01:09:53 2016
 #      by: pyside-uic 0.2.15 running on PySide 1.2.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,7 +26,7 @@ class Ui_Form(object):
         self.combined_tab.setObjectName("combined_tab")
         self.PlotArea.addTab(self.combined_tab, "")
         self.InputData_label = QtGui.QLabel(Form)
-        self.InputData_label.setGeometry(QtCore.QRect(20, 10, 91, 31))
+        self.InputData_label.setGeometry(QtCore.QRect(20, 10, 181, 31))
         font = QtGui.QFont()
         font.setPointSize(12)
         font.setWeight(75)
@@ -131,7 +131,7 @@ class Ui_Form(object):
         self.clmin_layout.addWidget(self.clmax_lineEdit_3)
         self.Cl_group_layout.addLayout(self.clmin_layout)
         self.layoutWidget2 = QtGui.QWidget(Form)
-        self.layoutWidget2.setGeometry(QtCore.QRect(250, 400, 196, 101))
+        self.layoutWidget2.setGeometry(QtCore.QRect(250, 400, 196, 123))
         self.layoutWidget2.setObjectName("layoutWidget2")
         self.verticalLayout = QtGui.QVBoxLayout(self.layoutWidget2)
         self.verticalLayout.setContentsMargins(0, 0, 0, 0)
@@ -148,12 +148,16 @@ class Ui_Form(object):
         self.W_unitlabel.setObjectName("W_unitlabel")
         self.W_layout.addWidget(self.W_unitlabel)
         self.verticalLayout.addLayout(self.W_layout)
+        self.Altura_Button = QtGui.QPushButton(self.layoutWidget2)
+        self.Altura_Button.setObjectName("Altura_Button")
+        self.verticalLayout.addWidget(self.Altura_Button)
         self.h_layout = QtGui.QHBoxLayout()
         self.h_layout.setObjectName("h_layout")
         self.h_label = QtGui.QLabel(self.layoutWidget2)
         self.h_label.setObjectName("h_label")
         self.h_layout.addWidget(self.h_label)
         self.h_lineEdit = QtGui.QLineEdit(self.layoutWidget2)
+        self.h_lineEdit.setReadOnly(True)
         self.h_lineEdit.setObjectName("h_lineEdit")
         self.h_layout.addWidget(self.h_lineEdit)
         self.h_unitlabel = QtGui.QLabel(self.layoutWidget2)
@@ -166,6 +170,7 @@ class Ui_Form(object):
         self.den_label.setObjectName("den_label")
         self.den_layout.addWidget(self.den_label)
         self.den_lineEdit = QtGui.QLineEdit(self.layoutWidget2)
+        self.den_lineEdit.setReadOnly(True)
         self.den_lineEdit.setObjectName("den_lineEdit")
         self.den_layout.addWidget(self.den_lineEdit)
         self.den_unitlabel = QtGui.QLabel(self.layoutWidget2)
@@ -274,6 +279,7 @@ class Ui_Form(object):
         self.clmin_label.setText(QtGui.QApplication.translate("Form", "Cl_min =", None, QtGui.QApplication.UnicodeUTF8))
         self.W_label.setText(QtGui.QApplication.translate("Form", "W =", None, QtGui.QApplication.UnicodeUTF8))
         self.W_unitlabel.setText(QtGui.QApplication.translate("Form", "Kg", None, QtGui.QApplication.UnicodeUTF8))
+        self.Altura_Button.setText(QtGui.QApplication.translate("Form", "Seleccionar Altura", None, QtGui.QApplication.UnicodeUTF8))
         self.h_label.setText(QtGui.QApplication.translate("Form", "h =", None, QtGui.QApplication.UnicodeUTF8))
         self.h_unitlabel.setText(QtGui.QApplication.translate("Form", "m", None, QtGui.QApplication.UnicodeUTF8))
         self.den_label.setText(QtGui.QApplication.translate("Form", "den =", None, QtGui.QApplication.UnicodeUTF8))

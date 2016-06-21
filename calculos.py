@@ -103,6 +103,7 @@ if __name__ == '__main__':
     clmax = 1.2463
     clmax_flap = 1.499
     clmin = -0.75*clmax
+
     Zmo = {'SI': 9999.2}
     Zmo['IM'] = Zmo['SI']/ft2m
 
@@ -113,6 +114,7 @@ if __name__ == '__main__':
 
     h = {'SI': 5000}
     h['IM'] = h['SI']/ft2m
+
 
     den = {'SI': 0.125}
     den['IM'] = den['SI']/lb2kg*ft2m**3
