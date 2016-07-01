@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>594</width>
-    <height>228</height>
+    <height>235</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -343,7 +343,7 @@ p, li { white-space: pre-wrap; }
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="label_7">
+            <widget class="QLabel" name="unitlabel_rho">
              <property name="text">
               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;[Kg/ m&lt;span style=&quot; vertical-align:super;&quot;&gt;3&lt;/span&gt;]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
              </property>

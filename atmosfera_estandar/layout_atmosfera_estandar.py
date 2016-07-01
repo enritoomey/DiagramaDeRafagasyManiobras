@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'layout_atmosfera_estandar.ui'
 #
-# Created: Tue Jun 21 01:30:32 2016
+# Created: Thu Jun 23 00:50:25 2016
 #      by: pyside-uic 0.2.15 running on PySide 1.2.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -13,7 +13,7 @@ class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
         Dialog.setWindowModality(QtCore.Qt.WindowModal)
-        Dialog.resize(594, 228)
+        Dialog.resize(594, 235)
         self.gridLayout = QtGui.QGridLayout(Dialog)
         self.gridLayout.setObjectName("gridLayout")
         self.verticalLayout_4 = QtGui.QVBoxLayout()
@@ -148,9 +148,9 @@ class Ui_Dialog(object):
         self.lineEdit_rho.setAlignment(QtCore.Qt.AlignCenter)
         self.lineEdit_rho.setObjectName("lineEdit_rho")
         self.horizontalLayout_5.addWidget(self.lineEdit_rho)
-        self.label_7 = QtGui.QLabel(Dialog)
-        self.label_7.setObjectName("label_7")
-        self.horizontalLayout_5.addWidget(self.label_7)
+        self.unitlabel_rho = QtGui.QLabel(Dialog)
+        self.unitlabel_rho.setObjectName("unitlabel_rho")
+        self.horizontalLayout_5.addWidget(self.unitlabel_rho)
         self.verticalLayout_2.addLayout(self.horizontalLayout_5)
         spacerItem1 = QtGui.QSpacerItem(20, 5, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Minimum)
         self.verticalLayout_2.addItem(spacerItem1)
@@ -205,6 +205,6 @@ class Ui_Dialog(object):
         self.label_rho.setText(QtGui.QApplication.translate("Dialog", "<html><head/><body><p>Densidad</p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
         self.lineEdit_rho.setText(QtGui.QApplication.translate("Dialog", "1.2258", None, QtGui.QApplication.UnicodeUTF8))
         self.lineEdit_rho.setPlaceholderText(QtGui.QApplication.translate("Dialog", "1.2258", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_7.setText(QtGui.QApplication.translate("Dialog", "<html><head/><body><p>[Kg/ m<span style=\" vertical-align:super;\">3</span>]</p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
+        self.unitlabel_rho.setText(QtGui.QApplication.translate("Dialog", "<html><head/><body><p>[Kg/ m<span style=\" vertical-align:super;\">3</span>]</p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
         self.acceptButton.setText(QtGui.QApplication.translate("Dialog", "Aceptar", None, QtGui.QApplication.UnicodeUTF8))
 

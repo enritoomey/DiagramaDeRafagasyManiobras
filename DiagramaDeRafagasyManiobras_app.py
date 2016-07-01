@@ -166,15 +166,12 @@ class DiagramaDeRafagasyManiobrasDialog(QFrame, layout_DiagramaDeRafagasyManiobr
         print("Vc = {}".format(self.Vc[self.units]))
 
     def seleccionAltura(self):
-        dialogo = GUI_atmosfera_estandar.MainDialog()
+        dialogo = GUI_atmosfera_estandar.AtmosferaEstandarDialog(unit=self.units)
         if dialogo.exec_():
-            self.h[self.units] = dialogo.atmosfera['h']
-            self.den[self.units] = dialogo.atmosfera['rho']
+            self.h[self.units] = dialogo.atmosfera[self.units]['h']
+            self.den[self.units] = dialogo.atmosfera[self.units]['rho']
             self.h_lineEdit.setText(str(self.h[self.units]))
             self.den_lineEdit.setText(str(self.den[self.units]))
-
-
-
 
 
 # self.Q = []
