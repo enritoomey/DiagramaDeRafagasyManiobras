@@ -1,9 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import fsolve
-import
+
 class Diagramas_de_maniobras_y_rafagas(object):
-    def __init__(self, datos, w, h):
+    def __init__(self, datos, w, h, den, units='SI'):
         self.CAM = datos["CAM"]
         self.sw = datos["sw"]
         self.a3D = datos["a3D"]
@@ -16,6 +16,300 @@ class Diagramas_de_maniobras_y_rafagas(object):
         self.clmax_flap = datos["clmax_flap"]
         self.clmin = datos["clmin"]
         self.Zmo = datos["Zmo"]
-        self.w = w
+        self.W = w
         self.h = h
-        self.den = atmosfera_estandar(self.h)
+        self.den = den
+        self.units = units
+
+        self.carga_alar = {}
+        self.H = {}
+        self.Vs1 = {}
+        self.Vs0 = {}
+        self.Vsf = {}
+        self.Vd = {}
+        self.Va = {}
+        self.Vf = {}
+        self.Vf_n2 = {}
+        self.Vb = {}
+        self.Uref = {}
+        self.Uds = self.U = {}
+        self.Ude_25fts = {}
+        self.Ude_50fts = {}
+        self.Ude_60fts = {}
+
+        self.vel_label = {'IM': 'ft/s', 'SI': 'm/s'}
+
+        # constantes fijas:
+        self.ft2m = 0.3048
+        self.lb2kg = 0.453592
+        self.slugcuft2kgm3 = 515.379
+
+        self.cte_fgz = {'IM': 250000}
+        self.cte_fgz['SI'] = self.cte_fgz['IM'] * self.ft2m
+        self.s = {'IM': 100.015}
+        self.s['SI'] = self.s['IM'] * self.ft2m
+        self.gravedad = {'SI': 9.81}
+        self.gravedad['IM'] = self.gravedad['SI'] * self.ft2m / self.lb2kg
+        self.cte_nmax_1 = {'IM': 24000}
+        self.cte_nmax_1['SI'] = self.cte_nmax_1['IM'] * self.lb2kg
+        self.cte_nmax_2 = {'IM': 10000}
+        self.cte_nmax_2['SI'] = self.cte_nmax_1['IM'] * self.lb2kg
+
+        self.cte_Uref_h1 = {'IM': 15000}
+        self.cte_Uref_h1['SI'] = self.cte_Uref_h1['IM'] * self.ft2m
+        self.cte_Uref_h2 = {'IM': 50000}
+        self.cte_Uref_h2['SI'] = self.cte_Uref_h2['IM'] * self.ft2m
+        self.cte_Uref_v1 = {'IM': 56}
+        self.cte_Uref_v1['SI'] = self.cte_Uref_v1['IM'] * self.ft2m
+        self.cte_Uref_v2 = {'IM': 56}
+        self.cte_Uref_v2['SI'] = self.cte_Uref_v2['IM'] * self.ft2m
+        self.cte_Uref_v3 = {'IM': 26}
+        self.cte_Uref_v3['SI'] = self.cte_Uref_v3['IM'] * self.ft2m
+
+        # Esta constante esta porque hay que usar la pendiente a_cn = dCn/dalpha, y no a_cl = dCl/dalpha, pero no se de donde sale el valor
+        self.ad_CN = 0.59248
+        self.cte_Vb = {'IM': 498.0}  # lb/s**2
+        self.cte_Vb['SI'] = self.cte_Vb['IM'] * self.ft2m ** 4 / self.lb2kg
+
+        # Velocidad de rafadas
+        self.cte_Ude_h1 = {'IM': 20000}
+        self.cte_Ude_h1['SI'] = self.cte_Ude_h1['IM'] * self.ft2m
+        self.cte_Ude_h2 = {'IM': 50000}
+        self.cte_Ude_h2['SI'] = self.cte_Ude_h2['IM'] * self.ft2m
+        self.cte_25fts_v1 = {'IM': 25}
+        self.cte_25fts_v1['SI'] = self.cte_25fts_v1['IM'] * self.ft2m
+        self.cte_25fts_v2 = {'IM': 33.34}
+        self.cte_25fts_v2['SI'] = self.cte_25fts_v2['IM'] * self.ft2m
+        self.cte_25fts_m2 = 0.000417
+        self.cte_25fts_v3 = {'IM': 12.5}
+        self.cte_25fts_v3['SI'] = self.cte_25fts_v3['IM'] * self.ft2m
+        self.cte_50fts_v1 = {'IM': 50}
+        self.cte_50fts_v1['SI'] = self.cte_50fts_v1['IM'] * self.ft2m
+        self.cte_50fts_v2 = {'IM': 66.77}
+        self.cte_50fts_v2['SI'] = self.cte_50fts_v2['IM'] * self.ft2m
+        self.cte_50fts_m2 = 0.0008933
+        self.cte_50fts_v3 = {'IM': 25}
+        self.cte_50fts_v3['SI'] = self.cte_50fts_v3['IM'] * self.ft2m
+        self.cte_60fts_v1 = {'IM': 60}
+        self.cte_60fts_v1['SI'] = self.cte_60fts_v1['IM'] * self.ft2m
+        self.cte_60fts_v2 = {'IM': 60}
+        self.cte_60fts_v2['SI'] = self.cte_60fts_v2['IM'] * self.ft2m
+        self.cte_60fts_m2 = {'IM': 18}
+        self.cte_60fts_m2['SI'] = self.cte_60fts_m2['IM'] * self.ft2m
+        self.cte_60fts_v3 = {'IM': 38}
+        self.cte_60fts_v3['SI'] = self.cte_60fts_v3['IM'] * self.ft2m
+
+        # constantes relacionadas con el diagrama de ráfagas
+        self.R1 = self.MLW[units] / self.MTOW[units]
+        self.R2 = self.MZFW[units] / self.MTOW[units]
+        self.fgm = np.sqrt(self.R2 * np.tan(np.pi * self.R1 / 4.0))
+        self.fgz = 1 - self.Zmo[units] / self.cte_fgz[units]
+        self.fg = 0.5 * (self.fgz + self.fgm)
+
+    def calculos(self, units):
+        self.units = units
+        self.carga_alar[units] = self.W[units] / self.sw[units]
+        self.mu_g = 2 * self.carga_alar[units] / (self.den[units] * self.CAM[units] * self.a3D)  # *gravedad[units])
+        self.Kg = 0.88 * (self.mu_g / (5.3 + self.mu_g))
+        self.Vs1[units] = np.sqrt(self.carga_alar[units] / (0.5 * self.den[units] * self.clmax))
+        self.Vs0[units] = np.sqrt(-self.carga_alar[units] / (0.5 * self.den[units] * self.clmin))
+        self.Vsf[units] = np.sqrt(self.carga_alar[units] / (0.5 * self.den[units] * self.clmax_flap))
+
+        # Calculo de n_max
+        self.n_max = 2.1 + self.cte_nmax_1[units] / (self.MTOW[units] + self.cte_nmax_2[units])
+        if self.n_max < 2.5:
+            self.n_max = 2.5
+        elif self.n_max > 3.8:
+            self.n_max = 3.8
+
+        self.Va[units] = self.Vs1[units] * np.sqrt(self.n_max)
+        if self.Va[units] > self.Vc[units]:
+            self.Va[units] = self.Vc[units]
+        self.Vd[units] = self.Vc[units] / 0.85
+        self.Vf[units] = max(self.Vs1[units] * 1.6, self.Vsf[units] * 1.8)
+
+        if self.h[units] < self.cte_Uref_h1[units]:
+            self.Uref[units] = self.cte_Uref_v1[units] - 12.0 * self.h[units] / self.cte_Uref_h1[units]
+        elif self.h[units] < self.cte_Uref_h2[units]:
+            self.Uref[units] = self.cte_Uref_v2[units] - 18.0 * (self.h[units] - self.cte_Uref_h1[units]) / \
+                                               (self.cte_Uref_h2[units] - self.cte_Uref_h1[units])
+        else:
+            self.Uref[units] = self.cte_Uref_v3[units]
+
+        self.Vb[units] = min(self.Vc[units], self.Vs1[units] * np.sqrt(1 + self.Kg * self.Uref[units] * self.Vc[units] *
+                                            self.a3D * self.ad_CN / (self.cte_Vb[units] * self.carga_alar[units])))
+
+        if self.h[units] < self.cte_Ude_h1[units]:
+            self.Ude_25fts[units] = self.cte_25fts_v1[units]
+            self.Ude_50fts[units] = self.cte_50fts_v1[units]
+            self.Ude_60fts[units] = self.cte_60fts_v1[units]
+        elif self.h[units] < self.cte_Ude_h2[units]:
+            self.Ude_25fts[units] = self.cte_25fts_v2[units] - self.cte_25fts_m2 * self.h[units]
+            self.Ude_50fts[units] = self.cte_50fts_v2[units] - self.cte_50fts_m2 * self.h[units]
+            self.Ude_60fts[units] = self.cte_60fts_v2[units] - self.cte_60fts_m2[units] * \
+                                                               (self.h[units] - self.cte_Ude_h1[units]) \
+                                                               /(self.cte_Ude_h2[units] - self.cte_Ude_h2[units])
+        else:
+            self.Ude_25fts[units] = self.cte_25fts_v3[units]
+            self.Ude_50fts[units] = self.cte_50fts_v3[units]
+            self.Ude_60fts[units] = self.cte_60fts_v3[units]
+
+            self.Vf_n2[units] = np.sqrt(2 * self.W[self.units] / (0.5 * self.den[self.units] * self.clmax_flap * self.sw[self.units]))
+
+    def n_25fts(self, vel):
+        return self.fg * self.Ude_25fts[self.units] * self.a3D * self.ad_CN * vel / (self.cte_Vb[self.units] * self.carga_alar[self.units])
+
+    def n_50fts(self, vel):
+        return self.Kg * self.Ude_50fts[self.units] * self.a3D * self.ad_CN * vel / (self.cte_Vb[self.units] * self.carga_alar[self.units])
+
+    def n_60fts(self, vel):
+        return self.Kg * self.Ude_60fts[self.units] * self.a3D * self.ad_CN * vel / (self.cte_Vb[self.units] * self.carga_alar[self.units])
+
+    def n_gust_pos(self, vel):
+        if 0 <= vel <= self.Vb[self.units]:
+            return 1 + self.n_60fts(vel)
+        elif vel <= self.Vc[self.units]:
+            m = (self.n_50fts(self.Vc[self.units]) - self.n_60fts(self.Vb[self.units])) / (self.Vc[self.units] - self.Vb[self.units])
+            b = self.n_50fts(self.Vc[self.units]) - m * self.Vc[self.units]
+            return 1 + m * vel + b
+        elif vel <= self.Vd[self.units]:
+            m = (self.n_25fts(self.Vd[self.units]) - self.n_50fts(self.Vc[self.units])) / (self.Vd[self.units] - self.Vc[self.units])
+            b = self.n_25fts(self.Vd[self.units]) - m * self.Vd[self.units]
+            return 1 + m * vel + b
+        return None
+
+    def n_gust_neg(self, vel):
+        if 0 <= vel <= self.Vb[self.units]:
+            return 1 - self.n_60fts(vel)
+        elif vel <= self.Vc[self.units]:
+            m = (self.n_50fts(self.Vc[self.units]) - self.n_60fts(self.Vb[self.units])) / (self.Vc[self.units] - self.Vb[self.units])
+            b = self.n_50fts(self.Vc[self.units]) - m * self.Vc[self.units]
+            return 1 - m * vel + b
+        elif vel <= self.Vd[self.units]:
+            m = (self.n_25fts(self.Vd[self.units]) - self.n_50fts(self.Vc[self.units])) / (self.Vd[self.units] - self.Vc[self.units])
+            b = self.n_25fts(self.Vd[self.units]) - m * self.Vd[self.units]
+            return 1 - m * vel + b
+        return None
+
+    def n_stall_pos(self, vel):
+        return 0.5 * self.den[self.units] * vel**2 * self.sw[self.units] * self.clmax / self.W[self.units]
+
+
+    def n_stall_neg(self, vel):
+        return 0.5 * self.den[self.units] * vel**2 * self.sw[self.units] * self.clmin / self.W[self.units]
+
+
+    def n_stall_flap(self, vel):
+        return 0.5 * self.den[self.units] * vel**2 * self.sw[self.units] * self.clmax_flap / self.W[self.units]
+
+    def n_manoeuvre_pos(self, vel):
+        if 0 <= vel <= self.Va[self.units]:
+            return self.n_stall_pos(vel)
+        elif vel <= self.Vd[self.units]:
+            return self.n_max
+
+        return None
+
+    def n_manoeuvre_neg(self, vel):
+        if 0 <= vel <= self.Vs0[self.units]:
+            return self.n_stall_neg(vel)
+        elif vel <= self.Vc[self.units]:
+            return -1.0
+        elif vel <= self.Vd[self.units]:
+            return -1 + 1 / (self.Vd[self.units] - self.Vc[self.units]) * (vel - self.Vc[self.units])
+        return None
+
+    def plot_diagrama_de_rafagas(self, ax, dv):
+        ax.plot(np.arange(0, self.Vb[self.units], dv), [1 + self.n_60fts(vel) for vel in np.arange(0, self.Vb[self.units], dv)], color='r')
+        ax.plot(np.arange(0, self.Vb[self.units], dv), [1 - self.n_60fts(vel) for vel in np.arange(0, self.Vb[self.units], dv)], color='r')
+
+        ax.plot(np.arange(0, self.Vc[self.units], dv), [1 + self.n_50fts(vel) for vel in np.arange(0, self.Vc[self.units], dv)], color='b')
+        ax.plot(np.arange(0, self.Vc[self.units], dv), [1 - self.n_50fts(vel) for vel in np.arange(0, self.Vc[self.units], dv)], color='b')
+
+        ax.plot(np.arange(0, self.Vd[self.units], dv), [1 + self.n_25fts(vel) for vel in np.arange(0, self.Vd[self.units], dv)], color='g')
+        ax.plot(np.arange(0, self.Vd[self.units], dv), [1 - self.n_25fts(vel) for vel in np.arange(0, self.Vd[self.units], dv)], color='g')
+
+        ax.plot([self.Vb[self.units], self.Vc[self.units]], [1 + self.n_60fts(self.Vb[self.units]), 1 + self.n_50fts(self.Vc[self.units])], color='m')
+        ax.plot([self.Vb[self.units], self.Vc[self.units]], [1 - self.n_60fts(self.Vb[self.units]), 1 - self.n_50fts(self.Vc[self.units])], color='m')
+
+        ax.plot([self.Vc[self.units], self.Vd[self.units]], [1 + self.n_50fts(self.Vc[self.units]), 1 + self.n_25fts(self.Vd[self.units])], color='m')
+        ax.plot([self.Vc[self.units], self.Vd[self.units]], [1 - self.n_50fts(self.Vc[self.units]), 1 - self.n_25fts(self.Vd[self.units])], color='m')
+
+        ax.plot([self.Vd[self.units], self.Vd[self.units]], [1 + self.n_25fts(self.Vd[self.units]), 1 - self.n_25fts(self.Vd[self.units])], color='m')
+        ax.set_xlabel("Speed [{}]".format(self.vel_label[self.units]))
+        ax.set_ylabel("n")
+        ax.set_title("Gust Diagram")
+
+    def plot_diagrama_de_maniobras(self, ax, dv):
+        ax.plot(np.arange(0, self.Vs1[self.units], dv), [self.n_stall_pos(vel) for vel in np.arange(0, self.Vs1[self.units], dv)], color='m',
+                linestyle='--')
+        ax.plot([self.Vs1[self.units], self.Vs1[self.units]], [0, self.n_stall_pos(self.Vs1[self.units])], color='m')
+        ax.plot(np.arange(self.Vs1[self.units], self.Va[self.units], dv),
+                [self.n_stall_pos(vel) for vel in np.arange(self.Vs1[self.units], self.Va[self.units], dv)],
+                color='m', linestyle='-')
+        ax.plot(np.arange(0, self.Vs0[self.units] + dv, dv), [self.n_stall_neg(vel) for vel in np.arange(0, self.Vs0[self.units] + dv, dv)],
+                color='m', linestyle='--')
+        ax.plot([self.Vs0[self.units], self.Vs0[self.units]], [0, -1.0], color='m')
+        ax.plot([self.Vs1[self.units], self.Vs0[self.units]], [0.0, 0.0], color='m')
+        ax.plot([self.Va[self.units], self.Vd[self.units]], [self.n_max, self.n_max], color='m')
+        ax.plot([self.Vd[self.units], self.Vd[self.units]], [self.n_max, 0], color='m')
+        ax.plot([self.Vs0[self.units], self.Vc[self.units]], [-1.0, -1.0], color='m')
+        ax.plot([self.Vc[self.units], self.Vd[self.units]], [-1.0, 0.0], color='m')
+        ax.set_xlabel("Speed [{}]".format(self.vel_label[self.units]))
+        ax.set_ylabel("n")
+        ax.set_title("Manoeuvre Diagram")
+
+    def plot_diagrama_de_maniobras_con_flap(self, ax, dv):
+        ax.plot(np.arange(0, self.Vsf[self.units] + dv, dv), [self.n_stall_flap(vel) for vel in np.arange(0, self.Vsf[self.units] + dv, dv)],
+                color='b', linestyle='--')
+        ax.plot(np.arange(self.Vsf[self.units], self.Vf_n2[self.units] + dv, dv),
+                [self.n_stall_flap(vel) for vel in np.arange(self.Vsf[self.units], self.Vf_n2[self.units] + dv, dv)],
+                color='b', linestyle='-')
+        ax.plot([self.Vsf[self.units], self.Vsf[self.units]], [0.0, self.n_stall_flap(self.Vsf[self.units])], color='b', linestyle='-')
+        ax.plot([self.Vf_n2[self.units], self.Vf[self.units]], [2.0, 2.0], color='b', linestyle='-')
+        ax.plot([self.Vf[self.units], self.Vf[self.units]], [0.0, 2.0], color='b', linestyle='-')
+        ax.plot([self.Vsf[self.units], self.Vf[self.units]], [0.0, 0.0], color='b', linestyle='-')
+        ax.set_xlabel("Speed [{}]".format(self.vel_label[self.units]))
+        ax.set_ylabel("n")
+        ax.set_title("Manoeuvre Diagram")
+
+    def plot_diagrama_de_maniobras_y_rafagas(self, ax, dv):
+        # Calculo de las intersecciones:
+        if self.n_gust_pos(self.Va[self.units]) > self.n_max:
+            # extender stall hasta interseccion con gust y arrancar la comparacion desde ese punto
+            def func1(vel):
+                return self.n_gust_pos(vel) - self.n_stall_pos(vel)
+
+            v_intersec_pos = fsolve(func1, self.Va[self.units])[0]
+        else:
+            v_intersec_pos = self.Va[self.units]
+
+        if self.n_gust_pos(self.Vs0[self.units]) < -1.0:
+            # extender stall hasta interseccion con gust y arrancar la comparacion desde ese punto
+            def func2(vel):
+                return self.n_gust_neg(vel) - self.n_stall_neg(vel)
+
+            v_intersec_neg = fsolve(func2, self.Vs0[self.units])[0]
+        else:
+            v_intersec_neg = self.Vs0[self.units]
+
+        ax.fill_between(np.arange(0, v_intersec_pos, dv), 0,
+                        [self.n_stall_pos(vel) for vel in np.arange(0, v_intersec_pos, dv)],
+                        color='m', alpha=0.2)
+        ax.fill_between(np.arange(v_intersec_pos, self.Vd[self.units], dv), 0, [max(self.n_gust_pos(vel), self.n_manoeuvre_pos(vel))
+                                                                      for vel in
+                                                                      np.arange(v_intersec_pos, self.Vd[self.units], dv)],
+                        color='m', alpha=0.2)
+        ax.fill_between(np.arange(0, v_intersec_neg, dv), 0,
+                        [self.n_stall_neg(vel) for vel in np.arange(0, v_intersec_neg, dv)],
+                        color='m', alpha=0.2)
+        ax.fill_between(np.arange(v_intersec_neg, self.Vd[self.units], dv), 0, [min(self.n_gust_neg(vel), self.n_manoeuvre_neg(vel))
+                                                                      for vel in
+                                                                      np.arange(v_intersec_neg, self.Vd[self.units], dv)],
+                        color='m', alpha=0.2)
+        ax.fill_between([self.Vd[self.units], self.Vd[self.units]], 0, [max(self.n_manoeuvre_pos(self.Vd[self.units]), self.n_gust_pos(self.Vd[self.units])),
+                                                    min(self.n_manoeuvre_neg(self.Vd[self.units]), self.n_gust_neg(self.Vd[self.units]))], color='m',
+                        alpha=0.2)
+        ax.set_xlabel("Speed [{}]".format(self.vel_label[self.units]))
+        ax.set_ylabel("n")
+        ax.set_title("Combined Gust & Manoeuvre Diagram")

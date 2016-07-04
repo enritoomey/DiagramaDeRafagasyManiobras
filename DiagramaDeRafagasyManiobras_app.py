@@ -82,6 +82,7 @@ class DiagramaDeRafagasyManiobrasDialog(QFrame, layout_DiagramaDeRafagasyManiobr
         self.connect(self.IM_radioButton, SIGNAL("clicked()"), self.update_units)
         self.connect(self.SI_radioButton, SIGNAL("clicked()"), self.update_units)
         self.connect(self.Altura_Button, SIGNAL("clicked()"), self.seleccionAltura)
+        self.connect(self.grafiacar_pushButton, SIGNAL("clicked()"), self.Calculos())
 
         # self.CAM_lineEdit.textChanged()
         # self.connect(self.CAM_lineEdit,SIGNAL("textEdited(const dict&, const QString&)"),
@@ -93,7 +94,7 @@ class DiagramaDeRafagasyManiobrasDialog(QFrame, layout_DiagramaDeRafagasyManiobr
         self.MZFW_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.MZFW, float(self.MZFW_lineEdit.text()), self.lb2kg))
         self.W0_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.W0, float(self.W0_lineEdit.text()), self.lb2kg))
 
-        self.a3D_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.a3D, float(self.a3D_lineEdit.text()), []))
+        self.a3D_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.a3D, float(self.a3D_lineEdit.text())))
         self.clmax_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.clmax, float(self.clmax_lineEdit.text())))
         self.clmax_flap_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.clmax_flap, float(self.clmax_flap_lineEdit.text())))
 
@@ -106,7 +107,7 @@ class DiagramaDeRafagasyManiobrasDialog(QFrame, layout_DiagramaDeRafagasyManiobr
 
         self.grafiacar_pushButton.clicked.connect(self.Calculos)
 
-    def lecturadatos(self, variable, value, unitConverter = []):
+    def lecturadatos(self, variable, value, unitConverter = 1.0):
         print(value)
         if not unitConverter:
             variable = value
@@ -164,6 +165,58 @@ class DiagramaDeRafagasyManiobrasDialog(QFrame, layout_DiagramaDeRafagasyManiobr
         print("clmin = {}".format(self.clmin))
         print("Zmo = {}".format(self.Zmo[self.units]))
         print("Vc = {}".format(self.Vc[self.units]))
+
+        # output:
+        # para plot_diagrama_de_rafagas
+        #       Vb, (units)
+        #       Vc, (units)
+        #       Vd, (units)
+        #       n_25fts, (funcion)
+        #       n_50fts, (funcion)
+        #       n_60fts, (funcion)
+        #       dv,
+        #       units, vel_label
+
+        # para plot_diagrama_de_maniobras
+        #       n_stall_pos, (funcion)
+        #       n_stall_neg, (funcion)
+        #       n_max, (sin unidad)
+        #       Vs1, (units)
+        #       Vs0, (units)
+        #       Va, (units)
+        #       dv
+
+        # para plot_diagrama_de_maniobras_con_flap
+        #       n_stall_flap, (funcion)
+        #       Vsf,
+        #       Vf_n2, (no tiene units pero deberia tener)
+        #       Vf,
+        #       dv, (variable interna de ploteo)
+        #       units, vel_label (viene de la app)
+
+        # para plot_diagrama_de_maniobras_y_rafagas
+        #       n_stall_pos, (funcion)
+        #       n_stall_neg, (funcion)
+        #       n_gust_pos, (funcion)
+        #       n_gust_neg, (funcion)
+        #       n_manoeuvre_pos, (funcion)
+        #       n_manoeuvre_neg, (funcion)
+        #       v_intersec_pos, (no tiene units)
+        #       v_intersec_neg, (no tiene units)
+        #       Vd, (units)
+        #       dv, (variable interna de ploteo)
+        #       units, vel_label (viene de la app)
+
+        # Resumen: las varibles que hay que calcular son:
+        #   Va, Vb, Vc, Vd, Vs0, Vs1, Vsf, Vsf_n2, Vf
+        #   n_max, v_intersec_pos, v_intersec_neg
+        #
+        # Dps hay que actualizar los parametros de todas las funciones que se usan:
+        #   n_25fts, n_50fts, n_60fts, n_stall_pos, n_stall_neg
+        #   n_gust_pos, n_gust_pos, n_manoeuvre_pos, n_manoeuvre_neg
+        #
+        # Hay que distinguir que parametros depende de los parametros de entrada
+        # y cuales son fijos
 
     def seleccionAltura(self):
         dialogo = GUI_atmosfera_estandar.AtmosferaEstandarDialog(unit=self.units)
