@@ -8,7 +8,7 @@ import ipdb
 
 class AtmosferaEstandarDialog(QDialog, layout.Ui_Dialog):
 
-    def __init__(self, presion=101325.0, temperatura=293.0, unit='SI', parent=None):
+    def __init__(self, altura=None, presion=None, temperatura=None, densidad=None, unit='SI', parent=None):
         super(AtmosferaEstandarDialog, self).__init__(parent)
         self.setupUi(self)
         #TODO: I have to put unit keys before variables names in
@@ -29,14 +29,14 @@ class AtmosferaEstandarDialog(QDialog, layout.Ui_Dialog):
             'rho': 0,
             'mu': 0,
             'vson': 0
-        }}\
+        }}
 
         # Define input unit's label for SI and IM
-        self.length_label = {'IM': 'ft', 'SI': 'm'}
-        self.temp_label = {'IM': 'K', 'SI': 'R'}
-        self.speed_label = {'IM': 'ft/s', 'SI': 'm/s'}
-        self.den_label = {'IM': 'slug/ft^2', 'SI': 'kg/m^3'}
-        self.pressure_label = {'IM': 'Pa', 'SI': 'slug/m^2'}
+        self.length_label = {'IM': '[ft]', 'SI': '[m]'}
+        self.temp_label = {'IM': '[R]', 'SI': '[K]'}
+        self.speed_label = {'IM': '[ft/s]', 'SI': '[m/s]'}
+        self.den_label = {'IM': '[slug/ft^2]', 'SI': '[kg/m^3]'}
+        self.pressure_label = {'IM': '[slug/m^2]', 'SI': '[Pa]'}
 
         self.ft2m = 0.3048
         self.lb2kg = 0.453592
@@ -50,13 +50,25 @@ class AtmosferaEstandarDialog(QDialog, layout.Ui_Dialog):
             self.IM_radioButton.setChecked(True)
         else:
             raise
+        self.update_units()
+
         self.R = 287.00
         self.gamma = 1.4
-        self.read_from_lineEdits()
-        self.lineEdit_p.setText(str(presion))
-        self.actualizar('presion')
-        self.lineEdit_t.setText(str(temperatura))
-        self.actualizarT()
+
+        if altura:
+            self.atmosfera[self.units] = altura
+            self.actualizar('altura')
+        elif presion:
+            self.atmosfera[self.units] = presion
+            self.actualizar('presion')
+        else:
+            self.actualizar('altura')
+        if temperatura:
+            self.lineEdit_t.setText(str(temperatura))
+            self.actualizarT()
+        elif densidad:
+            self.lineEdit_rho.setText(str(densidad))
+            self.actualizarRho()
 
         self.connect(self.IM_radioButton, SIGNAL("clicked()"), self.update_units)
         self.connect(self.SI_radioButton, SIGNAL("clicked()"), self.update_units)
@@ -79,7 +91,7 @@ class AtmosferaEstandarDialog(QDialog, layout.Ui_Dialog):
         # TODO: Modidicar
         calculo = 'temperatura'
         temp = float(self.lineEdit_t.text())
-        self.atmosfera[self.units]['deltaT'] =  self.atmosfera[self.units]['deltaT']+temp - self.atmosfera[self.units]['t']
+        self.atmosfera[self.units]['deltaT'] = self.atmosfera[self.units]['deltaT']+temp - self.atmosfera[self.units]['t']
         self.lineEdit_deltaT.setText(str(round(self.atmosfera[self.units]['deltaT'], 2)))
         self.atmosfera[self.units]['t'] = temp
         self.atmosfera[self.units]['rho'] = self.atmosfera[self.units]['p'] / self.atmosfera[self.units]['t']/self.R
@@ -120,7 +132,7 @@ class AtmosferaEstandarDialog(QDialog, layout.Ui_Dialog):
         self.lineEdit_t.setText(str(self.atmosfera[self.units]['t']))
         self.lineEdit_rho.setText(str(self.atmosfera[self.units]['rho']))
         self.lineEdit_mu.setText(str(self.atmosfera[self.units]['mu']))
-        self.lineEdit_Vson.setText(str(self.atmosfera[self.units]['Vson']))
+        self.lineEdit_Vson.setText(str(self.atmosfera[self.units]['vson']))
 
 
     def update_values(self):
