@@ -52,7 +52,7 @@ class AtmosferaEstandarDialog(QDialog, layout.Ui_Dialog):
             raise
         self.update_units()
 
-        self.R = 287.00
+        self.R = {'SI': 287.00, 'IM': 1716}
         self.gamma = 1.4
 
         if altura:
@@ -88,20 +88,20 @@ class AtmosferaEstandarDialog(QDialog, layout.Ui_Dialog):
         self.write_lineEdits()
 
     def actualizarT(self):
-        # TODO: Modidicar
+        # TODO: Modificar para distintos tipos de unidades
         calculo = 'temperatura'
         temp = float(self.lineEdit_t.text())
         self.atmosfera[self.units]['deltaT'] = self.atmosfera[self.units]['deltaT']+temp - self.atmosfera[self.units]['t']
         self.lineEdit_deltaT.setText(str(round(self.atmosfera[self.units]['deltaT'], 2)))
         self.atmosfera[self.units]['t'] = temp
-        self.atmosfera[self.units]['rho'] = self.atmosfera[self.units]['p'] / self.atmosfera[self.units]['t']/self.R
-        self.lineEdit_rho.setText(str(round(self.atmosfera[self.units]['rho'], 3)))
+        self.atmosfera[self.units]['rho'] = self.atmosfera[self.units]['p'] / self.atmosfera[self.units]['t']/self.R[self.units]
+        self.lineEdit_rho.setText(str(self.atmosfera[self.units]['rho']))
 
     def actualizarRho(self):
-        # TODO: modificar
+        # TODO: Modificar para distintos tipos de unidades
         calculo = 'densidad'
         self.atmosfera[self.units]['rho'] = float(round(self.lineEdit_rho.text(), 3))
-        temp = self.atmosfera[self.units]['p'] / self.atmosfera[self.units]['rho']/self.R
+        temp = self.atmosfera[self.units]['p'] / self.atmosfera[self.units]['rho']/self.R[self.units]
         self.atmosfera[self.units]['deltaT'] = self.atmosfera[self.units]['deltaT'] + temp - self.atmosfera[self.units]['t']
         self.lineEdit_deltaT.setText(str(round(self.atmosfera[self.units]['deltaT'], 2)))
         self.atmosfera[self.units]['t'] = temp
@@ -151,7 +151,7 @@ class AtmosferaEstandarDialog(QDialog, layout.Ui_Dialog):
         self.atmosfera[self.units]['t'] = float(self.lineEdit_t.text())
         self.atmosfera[self.units]['rho'] = float(self.lineEdit_rho.text())
         self.atmosfera[self.units]['mu'] = float(self.lineEdit_mu.text())
-        self.atmosfera[self.units]['Vson'] = float(self.lineEdit_Vson.text())
+        self.atmosfera[self.units]['vson'] = float(self.lineEdit_Vson.text())
 
 
     def si2im(self):
@@ -161,7 +161,7 @@ class AtmosferaEstandarDialog(QDialog, layout.Ui_Dialog):
         self.atmosfera['IM']['t'] = self.atmosfera['SI']['t']/self.rankine2kelvin
         self.atmosfera['IM']['rho'] = self.atmosfera['SI']['rho']/self.slugcuft2kgm3
         self.atmosfera['IM']['mu'] = self.atmosfera['SI']['mu']/self.lb2kg*self.ft2m
-        self.atmosfera['IM']['Vson'] = self.atmosfera['SI']['Vson']/self.ft2m
+        self.atmosfera['IM']['vson'] = self.atmosfera['SI']['vson']/self.ft2m
 
     def im2si(self):
         self.atmosfera['SI']['h'] = self.atmosfera['IM']['h']*self.ft2m
@@ -170,7 +170,7 @@ class AtmosferaEstandarDialog(QDialog, layout.Ui_Dialog):
         self.atmosfera['SI']['t'] = self.atmosfera['IM']['t']*self.rankine2kelvin
         self.atmosfera['SI']['rho'] = self.atmosfera['IM']['rho']*self.slugcuft2kgm3
         self.atmosfera['SI']['mu'] = self.atmosfera['IM']['mu']*self.lb2kg/self.ft2m
-        self.atmosfera['SI']['Vson'] = self.atmosfera['IM']['Vson']*self.ft2m
+        self.atmosfera['SI']['vson'] = self.atmosfera['IM']['vson']*self.ft2m
 
 
 if __name__=='__main__':

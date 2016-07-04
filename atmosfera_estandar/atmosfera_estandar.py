@@ -72,8 +72,8 @@ def atmosfera_estandar(calculo,atmosfera):
     atmosfera['p'] = p
     atmosfera['t'] = t
     atmosfera['rho'] = rho
-    atmosfera['mu']= mu
-    atmosfera['Vson'] = vson
+    atmosfera['mu'] = mu
+    atmosfera['vson'] = vson
     
     return atmosfera
 
