@@ -106,55 +106,54 @@ class Diagramas_de_maniobras_y_rafagas(object):
         self.fgz = 1 - self.Zmo[units] / self.cte_fgz[units]
         self.fg = 0.5 * (self.fgz + self.fgm)
 
-    def calculos(self, units):
-        self.units = units
-        self.carga_alar[units] = self.W[units] / self.sw[units]
-        self.mu_g = 2 * self.carga_alar[units] / (self.den[units] * self.CAM[units] * self.a3D)  # *gravedad[units])
+    def calculos(self):
+        self.carga_alar[self.units] = self.W[self.units] / self.sw[self.units]
+        self.mu_g = 2 * self.carga_alar[self.units] / (self.den[self.units] * self.CAM[self.units] * self.a3D)  # *gravedad[units])
         self.Kg = 0.88 * (self.mu_g / (5.3 + self.mu_g))
-        self.Vs1[units] = np.sqrt(self.carga_alar[units] / (0.5 * self.den[units] * self.clmax))
-        self.Vs0[units] = np.sqrt(-self.carga_alar[units] / (0.5 * self.den[units] * self.clmin))
-        self.Vsf[units] = np.sqrt(self.carga_alar[units] / (0.5 * self.den[units] * self.clmax_flap))
+        self.Vs1[self.units] = np.sqrt(self.carga_alar[self.units] / (0.5 * self.den[self.units] * self.clmax))
+        self.Vs0[self.units] = np.sqrt(-self.carga_alar[self.units] / (0.5 * self.den[self.units] * self.clmin))
+        self.Vsf[self.units] = np.sqrt(self.carga_alar[self.units] / (0.5 * self.den[self.units] * self.clmax_flap))
 
         # Calculo de n_max
-        self.n_max = 2.1 + self.cte_nmax_1[units] / (self.MTOW[units] + self.cte_nmax_2[units])
+        self.n_max = 2.1 + self.cte_nmax_1[self.units] / (self.MTOW[self.units] + self.cte_nmax_2[self.units])
         if self.n_max < 2.5:
             self.n_max = 2.5
         elif self.n_max > 3.8:
             self.n_max = 3.8
 
-        self.Va[units] = self.Vs1[units] * np.sqrt(self.n_max)
-        if self.Va[units] > self.Vc[units]:
-            self.Va[units] = self.Vc[units]
-        self.Vd[units] = self.Vc[units] / 0.85
-        self.Vf[units] = max(self.Vs1[units] * 1.6, self.Vsf[units] * 1.8)
+        self.Va[self.units] = self.Vs1[self.units] * np.sqrt(self.n_max)
+        if self.Va[self.units] > self.Vc[self.units]:
+            self.Va[self.units] = self.Vc[self.units]
+        self.Vd[self.units] = self.Vc[self.units] / 0.85
+        self.Vf[self.units] = max(self.Vs1[self.units] * 1.6, self.Vsf[self.units] * 1.8)
 
-        if self.h[units] < self.cte_Uref_h1[units]:
-            self.Uref[units] = self.cte_Uref_v1[units] - 12.0 * self.h[units] / self.cte_Uref_h1[units]
-        elif self.h[units] < self.cte_Uref_h2[units]:
-            self.Uref[units] = self.cte_Uref_v2[units] - 18.0 * (self.h[units] - self.cte_Uref_h1[units]) / \
-                                               (self.cte_Uref_h2[units] - self.cte_Uref_h1[units])
+        if self.h[self.units] < self.cte_Uref_h1[self.units]:
+            self.Uref[self.units] = self.cte_Uref_v1[self.units] - 12.0 * self.h[self.units] / self.cte_Uref_h1[self.units]
+        elif self.h[self.units] < self.cte_Uref_h2[self.units]:
+            self.Uref[self.units] = self.cte_Uref_v2[self.units] - 18.0 * (self.h[self.units] - self.cte_Uref_h1[self.units]) / \
+                                               (self.cte_Uref_h2[self.units] - self.cte_Uref_h1[self.units])
         else:
-            self.Uref[units] = self.cte_Uref_v3[units]
+            self.Uref[self.units] = self.cte_Uref_v3[self.units]
 
-        self.Vb[units] = min(self.Vc[units], self.Vs1[units] * np.sqrt(1 + self.Kg * self.Uref[units] * self.Vc[units] *
-                                            self.a3D * self.ad_CN / (self.cte_Vb[units] * self.carga_alar[units])))
+        self.Vb[self.units] = min(self.Vc[self.units], self.Vs1[self.units] * np.sqrt(1 + self.Kg * self.Uref[self.units] * self.Vc[self.units] *
+                                            self.a3D * self.ad_CN / (self.cte_Vb[self.units] * self.carga_alar[self.units])))
 
-        if self.h[units] < self.cte_Ude_h1[units]:
-            self.Ude_25fts[units] = self.cte_25fts_v1[units]
-            self.Ude_50fts[units] = self.cte_50fts_v1[units]
-            self.Ude_60fts[units] = self.cte_60fts_v1[units]
-        elif self.h[units] < self.cte_Ude_h2[units]:
-            self.Ude_25fts[units] = self.cte_25fts_v2[units] - self.cte_25fts_m2 * self.h[units]
-            self.Ude_50fts[units] = self.cte_50fts_v2[units] - self.cte_50fts_m2 * self.h[units]
-            self.Ude_60fts[units] = self.cte_60fts_v2[units] - self.cte_60fts_m2[units] * \
-                                                               (self.h[units] - self.cte_Ude_h1[units]) \
-                                                               /(self.cte_Ude_h2[units] - self.cte_Ude_h2[units])
+        if self.h[self.units] < self.cte_Ude_h1[self.units]:
+            self.Ude_25fts[self.units] = self.cte_25fts_v1[self.units]
+            self.Ude_50fts[self.units] = self.cte_50fts_v1[self.units]
+            self.Ude_60fts[self.units] = self.cte_60fts_v1[self.units]
+        elif self.h[self.units] < self.cte_Ude_h2[self.units]:
+            self.Ude_25fts[self.units] = self.cte_25fts_v2[self.units] - self.cte_25fts_m2 * self.h[self.units]
+            self.Ude_50fts[self.units] = self.cte_50fts_v2[self.units] - self.cte_50fts_m2 * self.h[self.units]
+            self.Ude_60fts[self.units] = self.cte_60fts_v2[self.units] - self.cte_60fts_m2[self.units] * \
+                                                               (self.h[self.units] - self.cte_Ude_h1[self.units]) \
+                                                               /(self.cte_Ude_h2[self.units] - self.cte_Ude_h2[self.units])
         else:
-            self.Ude_25fts[units] = self.cte_25fts_v3[units]
-            self.Ude_50fts[units] = self.cte_50fts_v3[units]
-            self.Ude_60fts[units] = self.cte_60fts_v3[units]
+            self.Ude_25fts[self.units] = self.cte_25fts_v3[self.units]
+            self.Ude_50fts[self.units] = self.cte_50fts_v3[self.units]
+            self.Ude_60fts[self.units] = self.cte_60fts_v3[self.units]
 
-            self.Vf_n2[units] = np.sqrt(2 * self.W[self.units] / (0.5 * self.den[self.units] * self.clmax_flap * self.sw[self.units]))
+        self.Vf_n2[self.units] = np.sqrt(2 * self.W[self.units] / (0.5 * self.den[self.units] * self.clmax_flap * self.sw[self.units]))
 
     def n_25fts(self, vel):
         return self.fg * self.Ude_25fts[self.units] * self.a3D * self.ad_CN * vel / (self.cte_Vb[self.units] * self.carga_alar[self.units])
@@ -313,3 +312,73 @@ class Diagramas_de_maniobras_y_rafagas(object):
         ax.set_xlabel("Speed [{}]".format(self.vel_label[self.units]))
         ax.set_ylabel("n")
         ax.set_title("Combined Gust & Manoeuvre Diagram")
+
+
+if __name__ == "__main__":
+    ft2m = 0.3048
+    lb2kg = 0.453592
+    slugcuft2kgm3 = 515.379
+
+    # Input Data:
+    CAM = {'SI': 2.461}
+    CAM['IM'] = CAM['SI'] / ft2m
+    sw = {'SI': 60}
+    sw['IM'] = sw['SI'] / ft2m / ft2m
+    a3D = 5.0037  # 1/rad
+    MTOW = {'SI': 23000}
+    MTOW['IM'] = MTOW['SI'] / lb2kg
+    MLW = {'SI': 23000}
+    MLW['IM'] = MLW['SI'] / lb2kg
+    W0 = {'SI': 13766.0}
+    W0['IM'] = W0['SI'] / lb2kg
+    MZFW = {'SI': 16376.0}
+    MZFW['IM'] = MZFW['SI'] / lb2kg
+    Vc = {'SI': 151.93}
+    Vc['IM'] = Vc['SI'] / ft2m
+    clmax = 1.2463
+    clmax_flap = 1.499
+    clmin = -0.75 * clmax
+    Zmo = {'SI': 9999.2}
+    Zmo['IM'] = Zmo['SI'] / ft2m
+
+    # Variables
+    W = {'SI': 20000}
+    W['IM'] = W['SI'] / lb2kg
+    h = {'SI': 5000}
+    h['IM'] = h['SI'] / ft2m
+    den = {'SI': 0.125}
+    den['IM'] = den['SI'] / lb2kg * ft2m ** 3
+
+    datos = {
+        'CAM': CAM,
+        'sw': sw,
+        'a3D': a3D,
+        'MTOW': MTOW,
+        'MLW': MLW,
+        'W0': W0,
+        'MZFW': MZFW,
+        'Vc': Vc,
+        'clmax': clmax,
+        'clmax_flap': clmax,
+        'clmin': clmin,
+        'Zmo': Zmo
+    }
+
+    diagrama = Diagramas_de_maniobras_y_rafagas(datos, W, h, den, units='SI')
+    diagrama.calculos()
+    
+    fig, ax1 = plt.subplots(nrows=1, ncols=1, sharex=True, sharey=True, squeeze=True)
+    diagrama.plot_diagrama_de_rafagas(ax1, 0.5)
+
+    fig, ax2 = plt.subplots(nrows=1, ncols=1, sharex=True, sharey=True, squeeze=True)
+    diagrama.plot_diagrama_de_maniobras(ax2, 0.5)
+
+    fig, ax3 = plt.subplots(nrows=1, ncols=1, sharex=True, sharey=True, squeeze=True)
+    diagrama.plot_diagrama_de_maniobras_con_flap(ax3, 0.5)
+
+    fig, ax4 = plt.subplots(nrows=1, ncols=1, sharex=True, sharey=True, squeeze=True)
+    diagrama.plot_diagrama_de_maniobras_y_rafagas(ax4, 0.5)
+
+    plt.grid(True)
+    plt.show()
+    

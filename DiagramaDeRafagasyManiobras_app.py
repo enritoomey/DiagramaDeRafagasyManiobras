@@ -125,8 +125,10 @@ class DiagramaDeRafagasyManiobrasDialog(QFrame, layout_DiagramaDeRafagasyManiobr
             self.units = "SI"
         else:
             return -1
+        self.update_unitLabels()
+        self.write_lineEdits()
 
-        # Actualizo unitlabels
+    def update_unitLabels(self):
         self.CAM_unitlabel.setText(self.length_label[self.units])
         self.sw_unitlabel.setText(self.area_label[self.units])
         self.MTOW_unitlabel.setText(self.weight_label[self.units])
@@ -139,7 +141,7 @@ class DiagramaDeRafagasyManiobrasDialog(QFrame, layout_DiagramaDeRafagasyManiobr
         self.den_unitlabel.setText(self.den_label[self.units])
         self.Vc_unitlabel.setText(self.speed_label[self.units])
 
-        # Actualizo los valores
+    def write_lineEdits(self):
         self.CAM_lineEdit.setText(str(self.CAM[self.units]))
         self.sw_lineEdit.setText(str(self.sw[self.units]))
         self.MTOW_lineEdit.setText(str(self.MTOW[self.units]))
@@ -151,6 +153,9 @@ class DiagramaDeRafagasyManiobrasDialog(QFrame, layout_DiagramaDeRafagasyManiobr
         self.h_lineEdit.setText(str(self.h[self.units]))
         self.den_lineEdit.setText(str(self.den[self.units]))
         self.Vc_lineEdit.setText(str(self.Vc[self.units]))
+
+    # TODO: falta un read_lineEdits()
+
 
     def Calculos(self):
         print("CAM = {}".format(self.CAM[self.units]))
@@ -223,20 +228,34 @@ class DiagramaDeRafagasyManiobrasDialog(QFrame, layout_DiagramaDeRafagasyManiobr
         if dialogo.exec_():
             self.h[self.units] = dialogo.atmosfera[self.units]['h']
             self.den[self.units] = dialogo.atmosfera[self.units]['rho']
-            self.h_lineEdit.setText(str(self.h[self.units]))
-            self.den_lineEdit.setText(str(self.den[self.units]))
+            self.update_values()
+
+    def update_values(self):
+        if self.units == 'SI':
+            self.si2im()
+        else:
+            self.im2si()
+        self.write_lineEdits()
+
+    def si2im(self):
+        # TODO: Agregar el resto de las variables
+        self.CAM['IM'] = self.CAM['SI']/self.ft2m
+
+    def im2si(self):
+        # TODO: Agregar el resto de las variables
+        self.CAM['SI'] = self.CAM['IM']*self.ft2m
 
 
-# self.Q = []
-    # self.gamma_aire = 1.4
-    # self.R_aire = 287
-    # #Defino las formulas quimicas para selecionar en formulas_comboBox
-    # self.formulas = {"AvGas":{'c':7,'h':16,'o':0,'s':0.00},"Diesel":{'c':12,'h':21,'o':0,'s':0.00}}
-    # # Utilizo las 'keys' de self.formulas para cargar los items en la combobox
-    # for key in self.formulas.keys():
-    #     self.formula_comboBox.addItem(key)
-    #
-    # self.actualizarFormula()
+        # self.Q = []
+        # self.gamma_aire = 1.4
+        # self.R_aire = 287
+        # #Defino las formulas quimicas para selecionar en formulas_comboBox
+        # self.formulas = {"AvGas":{'c':7,'h':16,'o':0,'s':0.00},"Diesel":{'c':12,'h':21,'o':0,'s':0.00}}
+        # # Utilizo las 'keys' de self.formulas para cargar los items en la combobox
+        # for key in self.formulas.keys():
+        #     self.formula_comboBox.addItem(key)
+        #
+        # self.actualizarFormula()
 
 app = QApplication(sys.argv)
 form = DiagramaDeRafagasyManiobrasDialog()
