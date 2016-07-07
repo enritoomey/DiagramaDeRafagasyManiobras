@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import fsolve
 
-class Diagramas_de_maniobras_y_rafagas(object):
+class Diagramas(object):
     def __init__(self, datos, w, h, den, units='SI'):
         self.CAM = datos["CAM"]
         self.sw = datos["sw"]
@@ -99,7 +99,7 @@ class Diagramas_de_maniobras_y_rafagas(object):
         self.cte_60fts_v3 = {'IM': 38}
         self.cte_60fts_v3['SI'] = self.cte_60fts_v3['IM'] * self.ft2m
 
-        # constantes relacionadas con el diagrama de ráfagas
+        # constantes relacionadas con el diagrama de rafagas
         self.R1 = self.MLW[units] / self.MTOW[units]
         self.R2 = self.MZFW[units] / self.MTOW[units]
         self.fgm = np.sqrt(self.R2 * np.tan(np.pi * self.R1 / 4.0))
@@ -147,7 +147,7 @@ class Diagramas_de_maniobras_y_rafagas(object):
             self.Ude_50fts[self.units] = self.cte_50fts_v2[self.units] - self.cte_50fts_m2 * self.h[self.units]
             self.Ude_60fts[self.units] = self.cte_60fts_v2[self.units] - self.cte_60fts_m2[self.units] * \
                                                                (self.h[self.units] - self.cte_Ude_h1[self.units]) \
-                                                               /(self.cte_Ude_h2[self.units] - self.cte_Ude_h2[self.units])
+                                                               /(self.cte_Ude_h2[self.units] - self.cte_Ude_h1[self.units])
         else:
             self.Ude_25fts[self.units] = self.cte_25fts_v3[self.units]
             self.Ude_50fts[self.units] = self.cte_50fts_v3[self.units]
@@ -364,7 +364,7 @@ if __name__ == "__main__":
         'Zmo': Zmo
     }
 
-    diagrama = Diagramas_de_maniobras_y_rafagas(datos, W, h, den, units='SI')
+    diagrama = Diagramas(datos, W, h, den, units='SI')
     diagrama.calculos()
     
     fig, ax1 = plt.subplots(nrows=1, ncols=1, sharex=True, sharey=True, squeeze=True)

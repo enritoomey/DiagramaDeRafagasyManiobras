@@ -3,15 +3,16 @@
 
 @author: Enriquito
 """
-
+import logging
 import sys
+import matplotlib.pyplot as plt
 sys.path.append('./atmosfera_estandar')
 
 import matplotlib  # Para los graficos
 from PySide.QtCore import *
 from PySide.QtGui import *  # importo todas las funciones de pyside
 # from matplotlib.backends.qt4_editor.formlayout import QDialog
-
+from diagramas_class import Diagramas
 matplotlib.use('Qt4Agg')
 matplotlib.rcParams['backend.qt4'] = 'PySide'
 # Estas lineas son un poco misteriosas, pero son las que me permite
@@ -24,6 +25,9 @@ import numpy as np # Para las cuentas
 import layout_DiagramaDeRafagasyManiobras # importo las clases creadas con Qt y pyside
 import GUI_atmosfera_estandar # todavia no voy a usar esta clase
 __appName__ = 'Diagrama de Rafagas y Maniobras'
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
 
 # Creo la clase principal, llamada ""Main Dialog"
 class DiagramaDeRafagasyManiobrasDialog(QFrame, layout_DiagramaDeRafagasyManiobras.Ui_Form):
@@ -44,39 +48,63 @@ class DiagramaDeRafagasyManiobrasDialog(QFrame, layout_DiagramaDeRafagasyManiobr
         self.ft2m = 0.3048
         self.lb2kg = 0.453592
         self.slugcuft2kgm3 = 515.379
-        # Creo algunas variables generales que luego voy a usar
-        self.CAM = {'SI': 0, 'IM': 0}
-        self.sw = {'SI': 0, 'IM': 0}
-        self.MTOW = {'SI': 0, 'IM': 0}
-        self.MLW = {'SI': 0, 'IM': 0}
-        self.W0 = {'SI': 0, 'IM': 0}
-        self.MZFW = {'SI': 0, 'IM': 0}
-        self.Vc = {'SI': 0, 'IM': 0}
-        self.Zmo = {'SI': 0, 'IM': 0}
-        self.W = {'SI': 0, 'IM': 0}
-        self.h = {'SI': 0, 'IM': 0}
-        self.den = {'SI': 0, 'IM': 0}
 
-        self.a3D = 5.0037# 1/rad
-        self.clmax = 1.2463
-        self.clmax_flap = 1.499
-        self.clmin = -0.75*self.clmax
+        datos = {
+            'CAM': {'SI': 2.461, 'IM': 2.461/self.ft2m},
+            'sw': {'SI': 60, 'IM': 60 / self.ft2m / self.ft2m},
+            'a3D': 5.0037,
+            'MTOW': {'SI': 23000, 'IM': 23000 / self.lb2kg},
+            'MLW': {'SI': 23000, 'IM': 23000 / self.lb2kg},
+            'W0': {'SI': 13766.0, 'IM': 13766 / self.lb2kg},
+            'MZFW': {'SI': 16376.0, 'IM': 16376.0 / self.lb2kg},
+            'Vc': {'SI': 151.93, 'IM': 151.93 / self.ft2m},
+            'clmax': 1.2463,
+            'clmax_flap': 1.499,
+            'clmin': -0.75*1.2463,
+            'Zmo': {'SI': 9999.2, 'IM': 9999.2 / self.ft2m}
+        }
+        w = {'SI': 20000, 'IM': 20000 / self.lb2kg}
+        h = {'SI': 5000, 'IM': 5000 / self.ft2m}
+        den = {'SI': 0.125, 'IM': 0.125*self.slugcuft2kgm3}
+        self.diagramas = Diagramas(datos, w, h, den, units='SI')
 
-        # input_data = {self.CAM:self.CAM_lineEdit, self.sw:self.sw_lineEdit}
-        # constantes
-        cte_fgz = {'IM': 250000}
-        cte_fgz['SI'] = cte_fgz['IM']*self.ft2m
-        s = {'IM': 100.015}
-        s['SI'] = s['IM']*self.ft2m
-        gravedad = {'SI': 9.81}
-        gravedad['IM'] = gravedad['SI']*self.ft2m/self.lb2kg
-        cte_nmax_1 = {'IM': 24000}
-        cte_nmax_1['SI'] = cte_nmax_1['IM']*self.lb2kg
-        cte_nmax_2 = {'IM': 10000}
-        cte_nmax_2['SI'] = cte_nmax_1['IM']*self.lb2kg
-
-        # Actualizo los labels:
         self.update_units()
+
+        # Generamos dos figuras, cada una luego asociada a un canvas, que a su vez tiene como padre una de las pestañas
+        # self.tab -> contiene la pestaña titulada "Diagrama P-S"
+        # self.tab_2 -> contiene la pestaña titulada "Diagrama T-S"
+        self.fig1 = Figure(figsize=(4.8, 3.4), dpi=72, facecolor=(1, 1, 1), edgecolor=(0, 0, 0))
+        self.axes1 = self.fig1.add_subplot(111)
+        self.axes1.set_ylabel('n')
+        self.axes1.set_xlabel(self.speed_label[self.units])
+        self.axes1.set_title('Diagrama de Maniobras')
+        self.axes1.ticklabel_format(style="sci", scilimits=(0, 0), axis="both")  # , useOffset=True,useLocale=True)
+        self.axes1.tick_params(axis="both", direction='in', length=6, width=2, labelsize="medium")
+
+        self.fig2 = Figure(figsize=(4.8, 3.4), dpi=72, facecolor=(1, 1, 1), edgecolor=(0, 0, 0))
+        self.axes2 = self.fig2.add_subplot(111)
+        self.axes2.set_ylabel('n')
+        self.axes2.ticklabel_format(style='sci', scilimits=(0, 0), axis="both")
+        self.axes2.set_xlabel(self.speed_label[self.units])
+        self.axes2.set_title('Diagrama de Rafagas')
+
+        self.fig3 = Figure(figsize=(4.8, 3.4), dpi=72, facecolor=(1, 1, 1), edgecolor=(0, 0, 0))
+        self.axes3 = self.fig3.add_subplot(111)
+        self.axes3.set_ylabel('n')
+        self.axes3.ticklabel_format(style='sci', scilimits=(0, 0), axis="both")
+        self.axes3.set_xlabel(self.speed_label[self.units])
+        self.axes3.set_title('Diagrama de Rafagas y maniobras')
+
+        # generate the canvas to display the plot
+        self.canvas1 = FigureCanvas(self.fig1)
+        self.canvas1.setParent(self.manoeuvre_tab)
+        self.canvas1.show()
+        self.canvas2 = FigureCanvas(self.fig2)
+        self.canvas2.setParent(self.gust_tab)
+        self.canvas2.show()
+        self.canvas3 = FigureCanvas(self.fig3)
+        self.canvas3.setParent(self.combined_tab)
+        self.canvas3.show()
 
         # SIGNALS & SLOTS
         self.connect(self.IM_radioButton, SIGNAL("clicked()"), self.update_units)
@@ -87,28 +115,28 @@ class DiagramaDeRafagasyManiobrasDialog(QFrame, layout_DiagramaDeRafagasyManiobr
         # self.CAM_lineEdit.textChanged()
         # self.connect(self.CAM_lineEdit,SIGNAL("textEdited(const dict&, const QString&)"),
         #              self.lecturadatos)
-        self.CAM_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.CAM, float(self.CAM_lineEdit.text()), self.ft2m))
-        self.sw_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.sw, float(self.sw_lineEdit.text()), self.ft2m**2))
-        self.MTOW_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.MTOW, float(self.MTOW_lineEdit.text()), self.lb2kg))
-        self.MLW_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.MLW, float(self.MLW_lineEdit.text()), self.lb2kg))
-        self.MZFW_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.MZFW, float(self.MZFW_lineEdit.text()), self.lb2kg))
-        self.W0_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.W0, float(self.W0_lineEdit.text()), self.lb2kg))
+        self.CAM_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.diagramas.CAM, float(self.CAM_lineEdit.text()), self.ft2m))
+        self.sw_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.diagramas.sw, float(self.sw_lineEdit.text()), self.ft2m**2))
+        self.MTOW_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.diagramas.MTOW, float(self.MTOW_lineEdit.text()), self.lb2kg))
+        self.MLW_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.diagramas.MLW, float(self.MLW_lineEdit.text()), self.lb2kg))
+        self.MZFW_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.diagramas.MZFW, float(self.MZFW_lineEdit.text()), self.lb2kg))
+        self.W0_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.diagramas.W0, float(self.W0_lineEdit.text()), self.lb2kg))
 
-        self.a3D_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.a3D, float(self.a3D_lineEdit.text())))
-        self.clmax_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.clmax, float(self.clmax_lineEdit.text())))
-        self.clmax_flap_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.clmax_flap, float(self.clmax_flap_lineEdit.text())))
+        self.a3D_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.diagramas.a3D, float(self.a3D_lineEdit.text())))
+        self.clmax_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.diagramas.clmax, float(self.clmax_lineEdit.text())))
+        self.clmax_flap_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.diagramas.clmax_flap, float(self.clmax_flap_lineEdit.text())))
 
-        self.Zmo_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.Zmo, float(self.Zmo_lineEdit.text()), self.ft2m))
-        self.Vc_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.Vc, float(self.Vc_lineEdit.text()), self.ft2m))
+        self.Zmo_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.diagramas.Zmo, float(self.Zmo_lineEdit.text()), self.ft2m))
+        self.Vc_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.diagramas.Vc, float(self.Vc_lineEdit.text()), self.ft2m))
 
-        self.W_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.W, float(self.W_lineEdit.text()), self.lb2kg))
-        self.h_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.h, float(self.h_lineEdit.text()), self.ft2m))
-        self.den_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.den, float(self.den_lineEdit.text()), self.lb2kg*self.ft2m**3))
+        self.W_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.diagramas.W, float(self.W_lineEdit.text()), self.lb2kg))
+        self.h_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.diagramas.h, float(self.h_lineEdit.text()), self.ft2m))
+        self.den_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.diagramas.den, float(self.den_lineEdit.text()), self.lb2kg*self.ft2m**3))
 
         self.grafiacar_pushButton.clicked.connect(self.Calculos)
 
     def lecturadatos(self, variable, value, unitConverter = 1.0):
-        print(value)
+        logger.debug(value)
         if not unitConverter:
             variable = value
         elif self.units == 'IM':
@@ -121,8 +149,10 @@ class DiagramaDeRafagasyManiobrasDialog(QFrame, layout_DiagramaDeRafagasyManiobr
     def update_units(self):
         if self.IM_radioButton.isChecked():
             self.units = "IM"
+            self.diagramas.units = "IM"
         elif self.SI_radioButton.isChecked():
             self.units = "SI"
+            self.diagramas.units = "SI"
         else:
             return -1
         self.update_unitLabels()
@@ -142,109 +172,58 @@ class DiagramaDeRafagasyManiobrasDialog(QFrame, layout_DiagramaDeRafagasyManiobr
         self.Vc_unitlabel.setText(self.speed_label[self.units])
 
     def write_lineEdits(self):
-        self.CAM_lineEdit.setText(str(self.CAM[self.units]))
-        self.sw_lineEdit.setText(str(self.sw[self.units]))
-        self.MTOW_lineEdit.setText(str(self.MTOW[self.units]))
-        self.MLW_lineEdit.setText(str(self.MLW[self.units]))
-        self.MZFW_lineEdit.setText(str(self.MZFW[self.units]))
-        self.W0_lineEdit.setText(str(self.W0[self.units]))
-        self.W_lineEdit.setText(str(self.W[self.units]))
-        self.Zmo_lineEdit.setText(str(self.Zmo[self.units]))
-        self.h_lineEdit.setText(str(self.h[self.units]))
-        self.den_lineEdit.setText(str(self.den[self.units]))
-        self.Vc_lineEdit.setText(str(self.Vc[self.units]))
-
-    # TODO: falta un read_lineEdits()
+        self.CAM_lineEdit.setText(str(self.diagramas.CAM[self.units]))
+        self.sw_lineEdit.setText(str(self.diagramas.sw[self.units]))
+        self.MTOW_lineEdit.setText(str(self.diagramas.MTOW[self.units]))
+        self.MLW_lineEdit.setText(str(self.diagramas.MLW[self.units]))
+        self.MZFW_lineEdit.setText(str(self.diagramas.MZFW[self.units]))
+        self.W0_lineEdit.setText(str(self.diagramas.W0[self.units]))
+        self.W_lineEdit.setText(str(self.diagramas.W[self.units]))
+        self.Zmo_lineEdit.setText(str(self.diagramas.Zmo[self.units]))
+        self.h_lineEdit.setText(str(self.diagramas.h[self.units]))
+        self.den_lineEdit.setText(str(self.diagramas.den[self.units]))
+        self.Vc_lineEdit.setText(str(self.diagramas.Vc[self.units]))
+        self.a3D_lineEdit.setText(str(self.diagramas.a3D))
+        self.clmax_lineEdit.setText(str(self.diagramas.clmax))
+        self.clmax_flap_lineEdit.setText(str(self.diagramas.clmax_flap))
+        self.clmin_lineEdit.setText(str(self.diagramas.clmin))
 
 
     def Calculos(self):
-        print("CAM = {}".format(self.CAM[self.units]))
-        print("Sw = {}".format(self.sw[self.units]))
-        print("MTOW = {}".format(self.MTOW[self.units]))
-        print("MLW = {}".format(self.MLW[self.units]))
-        print("MZFW = {}".format(self.MZFW[self.units]))
-        print("W0 = {}".format(self.W0[self.units]))
-        print("a3D = {}".format(self.a3D))
-        print("clmax = {}".format(self.clmax))
-        print("clmax_flap = {}".format(self.clmax_flap))
-        print("clmin = {}".format(self.clmin))
-        print("Zmo = {}".format(self.Zmo[self.units]))
-        print("Vc = {}".format(self.Vc[self.units]))
+        logger.info("CAM = {}".format(self.diagramas.CAM[self.units]))
+        logger.info("Sw = {}".format(self.diagramas.sw[self.units]))
+        logger.info("MTOW = {}".format(self.diagramas.MTOW[self.units]))
+        logger.info("MLW = {}".format(self.diagramas.MLW[self.units]))
+        logger.info("MZFW = {}".format(self.diagramas.MZFW[self.units]))
+        logger.info("W0 = {}".format(self.diagramas.W0[self.units]))
+        logger.info("a3D = {}".format(self.diagramas.a3D))
+        logger.info("clmax = {}".format(self.diagramas.clmax))
+        logger.info("clmax_flap = {}".format(self.diagramas.clmax_flap))
+        logger.info("clmin = {}".format(self.diagramas.clmin))
+        logger.info("Zmo = {}".format(self.diagramas.Zmo[self.units]))
+        logger.info("Vc = {}".format(self.diagramas.Vc[self.units]))
 
-        # output:
-        # para plot_diagrama_de_rafagas
-        #       Vb, (units)
-        #       Vc, (units)
-        #       Vd, (units)
-        #       n_25fts, (funcion)
-        #       n_50fts, (funcion)
-        #       n_60fts, (funcion)
-        #       dv,
-        #       units, vel_label
+        self.diagramas.calculos()
 
-        # para plot_diagrama_de_maniobras
-        #       n_stall_pos, (funcion)
-        #       n_stall_neg, (funcion)
-        #       n_max, (sin unidad)
-        #       Vs1, (units)
-        #       Vs0, (units)
-        #       Va, (units)
-        #       dv
+        self.axes1.clear()
+        self.diagramas.plot_diagrama_de_maniobras(self.axes1, 0.5)
+        self.diagramas.plot_diagrama_de_maniobras_con_flap(self.axes1, 0.5)
+        self.canvas1.draw()
 
-        # para plot_diagrama_de_maniobras_con_flap
-        #       n_stall_flap, (funcion)
-        #       Vsf,
-        #       Vf_n2, (no tiene units pero deberia tener)
-        #       Vf,
-        #       dv, (variable interna de ploteo)
-        #       units, vel_label (viene de la app)
+        self.axes2.clear()
+        self.diagramas.plot_diagrama_de_rafagas(self.axes2, 0.5)
+        self.canvas2.draw()
 
-        # para plot_diagrama_de_maniobras_y_rafagas
-        #       n_stall_pos, (funcion)
-        #       n_stall_neg, (funcion)
-        #       n_gust_pos, (funcion)
-        #       n_gust_neg, (funcion)
-        #       n_manoeuvre_pos, (funcion)
-        #       n_manoeuvre_neg, (funcion)
-        #       v_intersec_pos, (no tiene units)
-        #       v_intersec_neg, (no tiene units)
-        #       Vd, (units)
-        #       dv, (variable interna de ploteo)
-        #       units, vel_label (viene de la app)
-
-        # Resumen: las varibles que hay que calcular son:
-        #   Va, Vb, Vc, Vd, Vs0, Vs1, Vsf, Vsf_n2, Vf
-        #   n_max, v_intersec_pos, v_intersec_neg
-        #
-        # Dps hay que actualizar los parametros de todas las funciones que se usan:
-        #   n_25fts, n_50fts, n_60fts, n_stall_pos, n_stall_neg
-        #   n_gust_pos, n_gust_pos, n_manoeuvre_pos, n_manoeuvre_neg
-        #
-        # Hay que distinguir que parametros depende de los parametros de entrada
-        # y cuales son fijos
+        self.axes3.clear()
+        self.diagramas.plot_diagrama_de_maniobras_y_rafagas(self.axes3, 0.5)
+        self.canvas3.draw()
 
     def seleccionAltura(self):
         dialogo = GUI_atmosfera_estandar.AtmosferaEstandarDialog(unit=self.units)
         if dialogo.exec_():
-            self.h[self.units] = dialogo.atmosfera[self.units]['h']
-            self.den[self.units] = dialogo.atmosfera[self.units]['rho']
-            self.update_values()
-
-    def update_values(self):
-        if self.units == 'SI':
-            self.si2im()
-        else:
-            self.im2si()
-        self.write_lineEdits()
-
-    def si2im(self):
-        # TODO: Agregar el resto de las variables
-        self.CAM['IM'] = self.CAM['SI']/self.ft2m
-
-    def im2si(self):
-        # TODO: Agregar el resto de las variables
-        self.CAM['SI'] = self.CAM['IM']*self.ft2m
-
+            self.lecturadatos(self.diagramas.h, dialogo.atmosfera[self.units]['h'], unitConverter=self.ft2m)
+            self.lecturadatos(self.diagramas.den, dialogo.atmosfera[self.units]['rho'], unitConverter=self.slugcuft2kgm3)
+            self.write_lineEdits()
 
         # self.Q = []
         # self.gamma_aire = 1.4
