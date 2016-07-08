@@ -1,6 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import fsolve
+import argparse
+import json
 
 class Diagramas(object):
     def __init__(self, datos, w, h, den, units='SI'):
@@ -314,71 +316,96 @@ class Diagramas(object):
         ax.set_title("Combined Gust & Manoeuvre Diagram")
 
 
+def parse():
+    parser = argparse.ArgumentParser(description='Plot Gust and Manoeuver diagrams')
+    parser.add_argument('--units', type=str, default='SI', choices=('SI', 'IM'), help='select units system')
+    parser.add_argument('-H', '--height', type=float, default=0.0, help='Select height')
+    parser.add_argument('-W', '--weight', type=float, help='select airplane weight')
+    parser.add_argument('--file', type=str, help='select Json file to read airplane data')
+
+    args = parser.parse_args()
+    return args
+
+
 if __name__ == "__main__":
+
     ft2m = 0.3048
     lb2kg = 0.453592
     slugcuft2kgm3 = 515.379
 
-    # Input Data:
-    CAM = {'SI': 2.461}
-    CAM['IM'] = CAM['SI'] / ft2m
-    sw = {'SI': 60}
-    sw['IM'] = sw['SI'] / ft2m / ft2m
-    a3D = 5.0037  # 1/rad
-    MTOW = {'SI': 23000}
-    MTOW['IM'] = MTOW['SI'] / lb2kg
-    MLW = {'SI': 23000}
-    MLW['IM'] = MLW['SI'] / lb2kg
-    W0 = {'SI': 13766.0}
-    W0['IM'] = W0['SI'] / lb2kg
-    MZFW = {'SI': 16376.0}
-    MZFW['IM'] = MZFW['SI'] / lb2kg
-    Vc = {'SI': 151.93}
-    Vc['IM'] = Vc['SI'] / ft2m
-    clmax = 1.2463
-    clmax_flap = 1.499
-    clmin = -0.75 * clmax
-    Zmo = {'SI': 9999.2}
-    Zmo['IM'] = Zmo['SI'] / ft2m
+    args = parse()
+    units = args.units if args.units else 'SI'
+    h = {units: args.height}
+    if units == 'SI':
+        h['IM'] = h[units] / ft2m
+    else:
+        h['SI'] = h[units] * ft2m
 
+    if args.weight:
+        W = {units: args.weight}
+        if units == 'SI':
+            W['IM'] = W[units] / lb2kg
+        else:
+            W['SI'] = W[units] * lb2kg
+    else:
+        W = {'SI': 20000, 'IM': 20000 / lb2kg}
+
+    # Input Data:
+    if args.file:
+        datos = json.load(args.file)
+    else:
+        CAM = {'SI': 2.461}
+        CAM['IM'] = CAM['SI'] / ft2m
+        sw = {'SI': 60}
+        sw['IM'] = sw['SI'] / ft2m / ft2m
+        a3D = 5.0037  # 1/rad
+        MTOW = {'SI': 23000}
+        MTOW['IM'] = MTOW['SI'] / lb2kg
+        MLW = {'SI': 23000}
+        MLW['IM'] = MLW['SI'] / lb2kg
+        W0 = {'SI': 13766.0}
+        W0['IM'] = W0['SI'] / lb2kg
+        MZFW = {'SI': 16376.0}
+        MZFW['IM'] = MZFW['SI'] / lb2kg
+        Vc = {'SI': 151.93}
+        Vc['IM'] = Vc['SI'] / ft2m
+        clmax = 1.2463
+        clmax_flap = 1.499
+        clmin = -0.75 * clmax
+        Zmo = {'SI': 9999.2}
+        Zmo['IM'] = Zmo['SI'] / ft2m
+        datos = {
+            'CAM': CAM,
+            'sw': sw,
+            'a3D': a3D,
+            'MTOW': MTOW,
+            'MLW': MLW,
+            'W0': W0,
+            'MZFW': MZFW,
+            'Vc': Vc,
+            'clmax': clmax,
+            'clmax_flap': clmax,
+            'clmin': clmin,
+            'Zmo': Zmo
+        }
     # Variables
-    W = {'SI': 20000}
-    W['IM'] = W['SI'] / lb2kg
-    h = {'SI': 5000}
-    h['IM'] = h['SI'] / ft2m
     den = {'SI': 0.125}
     den['IM'] = den['SI'] / lb2kg * ft2m ** 3
 
-    datos = {
-        'CAM': CAM,
-        'sw': sw,
-        'a3D': a3D,
-        'MTOW': MTOW,
-        'MLW': MLW,
-        'W0': W0,
-        'MZFW': MZFW,
-        'Vc': Vc,
-        'clmax': clmax,
-        'clmax_flap': clmax,
-        'clmin': clmin,
-        'Zmo': Zmo
-    }
-
     diagrama = Diagramas(datos, W, h, den, units='SI')
     diagrama.calculos()
-    
+
     fig, ax1 = plt.subplots(nrows=1, ncols=1, sharex=True, sharey=True, squeeze=True)
     diagrama.plot_diagrama_de_rafagas(ax1, 0.5)
 
     fig, ax2 = plt.subplots(nrows=1, ncols=1, sharex=True, sharey=True, squeeze=True)
     diagrama.plot_diagrama_de_maniobras(ax2, 0.5)
-
-    fig, ax3 = plt.subplots(nrows=1, ncols=1, sharex=True, sharey=True, squeeze=True)
-    diagrama.plot_diagrama_de_maniobras_con_flap(ax3, 0.5)
+    diagrama.plot_diagrama_de_maniobras_con_flap(ax2, 0.5)
 
     fig, ax4 = plt.subplots(nrows=1, ncols=1, sharex=True, sharey=True, squeeze=True)
     diagrama.plot_diagrama_de_maniobras_y_rafagas(ax4, 0.5)
 
     plt.grid(True)
     plt.show()
-    
+
+    json.dump(datos, 'avion_ejemplo')
