@@ -44,14 +44,13 @@ class Diagramas(object):
         # constantes fijas:
         self.ft2m = 0.3048
         self.lb2kg = 0.453592
-        self.slugcuft2kgm3 = 515.379
 
         self.cte_fgz = {'IM': 250000}
         self.cte_fgz['SI'] = self.cte_fgz['IM'] * self.ft2m
         self.s = {'IM': 100.015}
         self.s['SI'] = self.s['IM'] * self.ft2m
         self.gravedad = {'SI': 9.81}
-        self.gravedad['IM'] = self.gravedad['SI'] * self.ft2m / self.lb2kg
+        self.gravedad['IM'] = self.gravedad['SI'] / self.ft2m
         self.cte_nmax_1 = {'IM': 24000}
         self.cte_nmax_1['SI'] = self.cte_nmax_1['IM'] * self.lb2kg
         self.cte_nmax_2 = {'IM': 10000}
@@ -112,9 +111,9 @@ class Diagramas(object):
         self.carga_alar[self.units] = self.W[self.units] / self.sw[self.units]
         self.mu_g = 2 * self.carga_alar[self.units] / (self.den[self.units] * self.CAM[self.units] * self.a3D)  # *gravedad[units])
         self.Kg = 0.88 * (self.mu_g / (5.3 + self.mu_g))
-        self.Vs1[self.units] = np.sqrt(self.carga_alar[self.units] / (0.5 * self.den[self.units] * self.clmax))
-        self.Vs0[self.units] = np.sqrt(-self.carga_alar[self.units] / (0.5 * self.den[self.units] * self.clmin))
-        self.Vsf[self.units] = np.sqrt(self.carga_alar[self.units] / (0.5 * self.den[self.units] * self.clmax_flap))
+        self.Vs1[self.units] = np.sqrt((self.carga_alar[self.units] * self.gravedad[self.units]) / (0.5 * self.den[self.units] * self.clmax))
+        self.Vs0[self.units] = np.sqrt((-self.carga_alar[self.units] * self.gravedad[self.units]) / (0.5 * self.den[self.units] * self.clmin))
+        self.Vsf[self.units] = np.sqrt((self.carga_alar[self.units] * self.gravedad[self.units]) / (0.5 * self.den[self.units] * self.clmax_flap))
 
         # Calculo de n_max
         self.n_max = 2.1 + self.cte_nmax_1[self.units] / (self.MTOW[self.units] + self.cte_nmax_2[self.units])
@@ -155,7 +154,7 @@ class Diagramas(object):
             self.Ude_50fts[self.units] = self.cte_50fts_v3[self.units]
             self.Ude_60fts[self.units] = self.cte_60fts_v3[self.units]
 
-        self.Vf_n2[self.units] = np.sqrt(2 * self.W[self.units] / (0.5 * self.den[self.units] * self.clmax_flap * self.sw[self.units]))
+        self.Vf_n2[self.units] = np.sqrt(2 * self.W[self.units] * self.gravedad[self.units] / (0.5 * self.den[self.units] * self.clmax_flap * self.sw[self.units]))
 
     def n_25fts(self, vel):
         return self.fg * self.Ude_25fts[self.units] * self.a3D * self.ad_CN * vel / (self.cte_Vb[self.units] * self.carga_alar[self.units])
@@ -177,7 +176,7 @@ class Diagramas(object):
             m = (self.n_25fts(self.Vd[self.units]) - self.n_50fts(self.Vc[self.units])) / (self.Vd[self.units] - self.Vc[self.units])
             b = self.n_25fts(self.Vd[self.units]) - m * self.Vd[self.units]
             return 1 + m * vel + b
-        return None
+        return 0.0
 
     def n_gust_neg(self, vel):
         if 0 <= vel <= self.Vb[self.units]:
@@ -190,18 +189,16 @@ class Diagramas(object):
             m = (self.n_25fts(self.Vd[self.units]) - self.n_50fts(self.Vc[self.units])) / (self.Vd[self.units] - self.Vc[self.units])
             b = self.n_25fts(self.Vd[self.units]) - m * self.Vd[self.units]
             return 1 - m * vel + b
-        return None
+        return 0.0
 
     def n_stall_pos(self, vel):
-        return 0.5 * self.den[self.units] * vel**2 * self.sw[self.units] * self.clmax / self.W[self.units]
-
+        return 0.5 * self.den[self.units] * vel**2 * self.sw[self.units] * self.clmax / (self.W[self.units] * self.gravedad[self.units])
 
     def n_stall_neg(self, vel):
-        return 0.5 * self.den[self.units] * vel**2 * self.sw[self.units] * self.clmin / self.W[self.units]
-
+        return 0.5 * self.den[self.units] * vel**2 * self.sw[self.units] * self.clmin / (self.W[self.units] * self.gravedad[self.units])
 
     def n_stall_flap(self, vel):
-        return 0.5 * self.den[self.units] * vel**2 * self.sw[self.units] * self.clmax_flap / self.W[self.units]
+        return 0.5 * self.den[self.units] * vel**2 * self.sw[self.units] * self.clmax_flap / (self.W[self.units] * self.gravedad[self.units])
 
     def n_manoeuvre_pos(self, vel):
         if 0 <= vel <= self.Va[self.units]:
@@ -331,7 +328,6 @@ if __name__ == "__main__":
 
     ft2m = 0.3048
     lb2kg = 0.453592
-    slugcuft2kgm3 = 515.379
 
     args = parse()
     units = args.units if args.units else 'SI'
@@ -352,7 +348,9 @@ if __name__ == "__main__":
 
     # Input Data:
     if args.file:
-        datos = json.load(args.file)
+        with open(args.file, 'r') as fileID:
+            datos = json.load(fileID)
+        fileID.close()
     else:
         CAM = {'SI': 2.461}
         CAM['IM'] = CAM['SI'] / ft2m
@@ -389,10 +387,10 @@ if __name__ == "__main__":
             'Zmo': Zmo
         }
     # Variables
-    den = {'SI': 0.125}
+    den = {'SI': 1.225}
     den['IM'] = den['SI'] / lb2kg * ft2m ** 3
 
-    diagrama = Diagramas(datos, W, h, den, units='SI')
+    diagrama = Diagramas(datos, W, h, den, units=units)
     diagrama.calculos()
 
     fig, ax1 = plt.subplots(nrows=1, ncols=1, sharex=True, sharey=True, squeeze=True)
@@ -408,4 +406,7 @@ if __name__ == "__main__":
     plt.grid(True)
     plt.show()
 
-    json.dump(datos, 'avion_ejemplo')
+    with open('airplane_data.json','w') as fileID:
+        json.dump(datos, fileID)
+
+    fileID.close()

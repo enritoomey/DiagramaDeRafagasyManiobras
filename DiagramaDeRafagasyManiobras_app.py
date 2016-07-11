@@ -47,7 +47,6 @@ class DiagramaDeRafagasyManiobrasDialog(QFrame, layout_DiagramaDeRafagasyManiobr
 
         self.ft2m = 0.3048
         self.lb2kg = 0.453592
-        self.slugcuft2kgm3 = 515.379
 
         datos = {
             'CAM': {'SI': 2.461, 'IM': 2.461/self.ft2m},
@@ -65,7 +64,7 @@ class DiagramaDeRafagasyManiobrasDialog(QFrame, layout_DiagramaDeRafagasyManiobr
         }
         w = {'SI': 20000, 'IM': 20000 / self.lb2kg}
         h = {'SI': 5000, 'IM': 5000 / self.ft2m}
-        den = {'SI': 0.125, 'IM': 0.125*self.slugcuft2kgm3}
+        den = {'SI': 1.225, 'IM': 1.225 / self.lb2kg * self.ft2m**3}
         self.diagramas = Diagramas(datos, w, h, den, units='SI')
 
         self.update_units()
@@ -131,7 +130,7 @@ class DiagramaDeRafagasyManiobrasDialog(QFrame, layout_DiagramaDeRafagasyManiobr
 
         self.W_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.diagramas.W, float(self.W_lineEdit.text()), self.lb2kg))
         self.h_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.diagramas.h, float(self.h_lineEdit.text()), self.ft2m))
-        self.den_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.diagramas.den, float(self.den_lineEdit.text()), self.lb2kg*self.ft2m**3))
+        self.den_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.diagramas.den, float(self.den_lineEdit.text()), self.lb2kg / self.ft2m**3))
 
         self.grafiacar_pushButton.clicked.connect(self.Calculos)
 
