@@ -30,7 +30,7 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
 # Creo la clase principal, llamada ""Main Dialog"
-class DiagramaDeRafagasyManiobrasDialog(QFrame, layout_DiagramaDeRafagasyManiobras.Ui_Form):
+class DiagramaDeRafagasyManiobrasDialog(QFrame, layout_DiagramaDeRafagasyManiobras.Ui_Dialog):
 
     # Estas lineas son medias magicas, pero siempre van:
     def __init__(self, parent=None):
@@ -72,7 +72,8 @@ class DiagramaDeRafagasyManiobrasDialog(QFrame, layout_DiagramaDeRafagasyManiobr
         # Generamos dos figuras, cada una luego asociada a un canvas, que a su vez tiene como padre una de las pestañas
         # self.tab -> contiene la pestaña titulada "Diagrama P-S"
         # self.tab_2 -> contiene la pestaña titulada "Diagrama T-S"
-        self.fig1 = Figure(figsize=(4.8, 3.4), dpi=72, facecolor=(1, 1, 1), edgecolor=(0, 0, 0))
+        self.fig1 = Figure((5.0, 3.0), dpi=72, facecolor=(1, 1, 1), edgecolor=(0, 0, 0))
+        self.fig1.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.25)
         self.axes1 = self.fig1.add_subplot(111)
         self.axes1.set_ylabel('n')
         self.axes1.set_xlabel(self.speed_label[self.units])
@@ -80,14 +81,16 @@ class DiagramaDeRafagasyManiobrasDialog(QFrame, layout_DiagramaDeRafagasyManiobr
         self.axes1.ticklabel_format(style="sci", scilimits=(0, 0), axis="both")  # , useOffset=True,useLocale=True)
         self.axes1.tick_params(axis="both", direction='in', length=6, width=2, labelsize="medium")
 
-        self.fig2 = Figure(figsize=(4.8, 3.4), dpi=72, facecolor=(1, 1, 1), edgecolor=(0, 0, 0))
+        self.fig2 = Figure(dpi=72, facecolor=(1, 1, 1), edgecolor=(0, 0, 0))
+        self.fig2.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.25)
         self.axes2 = self.fig2.add_subplot(111)
         self.axes2.set_ylabel('n')
         self.axes2.ticklabel_format(style='sci', scilimits=(0, 0), axis="both")
         self.axes2.set_xlabel(self.speed_label[self.units])
         self.axes2.set_title('Diagrama de Rafagas')
 
-        self.fig3 = Figure(figsize=(4.8, 3.4), dpi=72, facecolor=(1, 1, 1), edgecolor=(0, 0, 0))
+        self.fig3 = Figure(dpi=72, facecolor=(1, 1, 1), edgecolor=(0, 0, 0))
+        self.fig3.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.25)
         self.axes3 = self.fig3.add_subplot(111)
         self.axes3.set_ylabel('n')
         self.axes3.ticklabel_format(style='sci', scilimits=(0, 0), axis="both")
@@ -111,9 +114,6 @@ class DiagramaDeRafagasyManiobrasDialog(QFrame, layout_DiagramaDeRafagasyManiobr
         self.connect(self.Altura_Button, SIGNAL("clicked()"), self.seleccionAltura)
         self.connect(self.grafiacar_pushButton, SIGNAL("clicked()"), self.Calculos())
 
-        # self.CAM_lineEdit.textChanged()
-        # self.connect(self.CAM_lineEdit,SIGNAL("textEdited(const dict&, const QString&)"),
-        #              self.lecturadatos)
         self.CAM_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.diagramas.CAM, float(self.CAM_lineEdit.text()), self.ft2m))
         self.sw_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.diagramas.sw, float(self.sw_lineEdit.text()), self.ft2m**2))
         self.MTOW_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.diagramas.MTOW, float(self.MTOW_lineEdit.text()), self.lb2kg))
@@ -133,6 +133,11 @@ class DiagramaDeRafagasyManiobrasDialog(QFrame, layout_DiagramaDeRafagasyManiobr
         self.den_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.diagramas.den, float(self.den_lineEdit.text()), self.lb2kg / self.ft2m**3))
 
         self.grafiacar_pushButton.clicked.connect(self.Calculos)
+
+    def resizeEvent(self, event):
+        self.canvas1.setGeometry(self.PlotArea.rect())
+        self.canvas2.setGeometry(self.PlotArea.rect())
+        self.canvas3.setGeometry(self.PlotArea.rect())
 
     def lecturadatos(self, variable, value, unitConverter = 1.0):
         logger.debug(value)
