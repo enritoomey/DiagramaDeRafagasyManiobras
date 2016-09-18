@@ -7,11 +7,12 @@ Created on Tue Mar 24 00:12:28 2015
 import numpy as np
 import argparse
 
-def atmosfera_estandar(calculo,atmosfera):
+
+def atmosfera_estandar(calculo, input1, deltaT = 0):
 
     b_suth = 1.458*10**(-6) #[Kg/(m*s*sqrt(K))]
     s_suth = 110.4 #[K]
-    g  =9.81 #m/s**2
+    g  = 9.81 #m/s**2
     R = 287.0 #J/(kg*K)
     k = 1.4
     Z = [0.0, 11000.0, 20100.0, 32200.0, 52400.0, 61600.0, 80000.0, 95000.0]#[m]
@@ -19,8 +20,7 @@ def atmosfera_estandar(calculo,atmosfera):
     P = [101325.0, 22628.3619, 5386.81, 840.76, 52.62, 15.822, 0.8455, 0.04951]#Pa
 
     if calculo == 'altura':
-        h = atmosfera['h']
-        deltaT = atmosfera['deltaT']
+        h = input1
         n = 1
         c = 0
         while c == 0 | n < 7:
@@ -41,8 +41,7 @@ def atmosfera_estandar(calculo,atmosfera):
             rho = p/t/R
     
     elif calculo == 'presion':
-        p = atmosfera['p']
-        deltaT = atmosfera['deltaT']
+        p = input1
         n = 1
         c = 0
         while c == 0 | n < 7:
@@ -67,15 +66,18 @@ def atmosfera_estandar(calculo,atmosfera):
     mu = b_suth*np.sqrt(t)/(1+s_suth/t)
     vson = np.sqrt(k*R*t)
 
-    atmosfera['h'] = h
-    atmosfera['deltaT'] = deltaT
-    atmosfera['p'] = p
-    atmosfera['t'] = t
-    atmosfera['rho'] = rho
-    atmosfera['mu'] = mu
-    atmosfera['vson'] = vson
-    
-    return atmosfera
+    return h, deltaT, p, t, rho, mu, vson
+
+
+def print_results(results):
+    print("Results: \n")
+    print("\t altura      = {} [m]".format(results[0]))
+    print("\t deltaT      = {} [C]".format(results[1]))
+    print("\t presion     = {} [Pa]".format(results[2]))
+    print("\t temperatura = {} [K]".format(results[3]))
+    print("\t densidad    = {} [kg/m**3]".format(results[4]))
+    print("\t viscocidad  = {} [?]".format(results[5]))
+    print("\t vel. sonido = {} [m/s]".format(results[6]))
 
 
 def parse():
@@ -86,30 +88,10 @@ def parse():
                         choices=('altura', 'presion', 'temperatura', 'densidad'),
                         help="Seleccionar el tipo de dato de entrada")
     parser.add_argument("input1", type=float, help="ingrese el primer dato de entrada en unidades SI")
-    parser.add_argument("input2", type=float, help="ingrese el deltaT en C")
+    parser.add_argument("deltaT", type=float, help="ingrese el deltaT en C")
     return parser.parse_args()
 
 if __name__ == '__main__':
     args = parse()
-    atmosfera = {
-        'h': 0,
-        'deltaT': 0,
-        'p': 0,
-        't': 0,
-        'rho': 0,
-        'mu': 0,
-        'vson': 0
-    }
-    if args.input_type == 'altura':
-        atmosfera['h'] = args.input1
-    elif args.input_type == 'presion':
-        atmosfera['p'] = args.input1
-    elif args.input_type == 'temperatura':
-        atmosfera['t'] = args.input1
-    elif args.input_type == 'densidad':
-        atmosfera['rho'] = args.input1
-
-    atmosfera['deltaT'] = args.input2
-
-    atmosfera = atmosfera_estandar(args.input_type, atmosfera)
-    print(atmosfera)
+    results = atmosfera_estandar(args.input_type, args.input1, args.deltaT)
+    print_results(results)

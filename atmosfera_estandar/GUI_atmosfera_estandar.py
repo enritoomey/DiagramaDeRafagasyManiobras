@@ -4,7 +4,6 @@ import atmosfera_estandar
 import layout_atmosfera_estandar as layout
 from PySide.QtCore import *
 from PySide.QtGui import *
-import ipdb
 
 class AtmosferaEstandarDialog(QDialog, layout.Ui_Dialog):
 
@@ -83,7 +82,7 @@ class AtmosferaEstandarDialog(QDialog, layout.Ui_Dialog):
     def actualizar(self, tipo):
         # TODO: actualizar todos los datos, tanto en SI como en IM
         self.update_values()
-        self.atmosfera['SI'] = atmosfera_estandar.atmosfera_estandar(tipo, self.atmosfera['SI'])
+        self.call_atmosfera_estandar(tipo)
         self.si2im()
         self.write_lineEdits()
 
@@ -171,6 +170,22 @@ class AtmosferaEstandarDialog(QDialog, layout.Ui_Dialog):
         self.atmosfera['SI']['rho'] = self.atmosfera['IM']['rho']*self.slugcuft2kgm3
         self.atmosfera['SI']['mu'] = self.atmosfera['IM']['mu']*self.lb2kg/self.ft2m
         self.atmosfera['SI']['vson'] = self.atmosfera['IM']['vson']*self.ft2m
+
+    def call_atmosfera_estandar(self, tipo):
+        # atmosfera_estandar solo resuelve en unidades del sistema SI
+        if tipo == 'altura':
+            input1 = self.atmosfera['SI']['h']
+        elif tipo == 'presion':
+            input1 = self.atmosfera['SI']['p']
+        deltaT = self.atmosfera['SI']['deltaT']
+        h, deltaT, p, t, rho, mu, vson = atmosfera_estandar.atmosfera_estandar(tipo, input1, deltaT=deltaT)
+        self.atmosfera['SI']['h'] = h
+        self.atmosfera['SI']['deltaT'] = deltaT
+        self.atmosfera['SI']['p'] = p
+        self.atmosfera['SI']['t'] = t
+        self.atmosfera['SI']['rho'] = rho
+        self.atmosfera['SI']['mu'] = mu
+        self.atmosfera['SI']['vson'] = vson
 
 
 if __name__=='__main__':
