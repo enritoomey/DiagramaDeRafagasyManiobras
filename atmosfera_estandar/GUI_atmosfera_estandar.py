@@ -64,19 +64,19 @@ class AtmosferaEstandarDialog(QDialog, layout.Ui_Dialog):
             self.actualizar('altura')
         if temperatura:
             self.lineEdit_t.setText(str(temperatura))
-            self.actualizarT()
+            self.actualizarT(temperatura)
         elif densidad:
             self.lineEdit_rho.setText(str(densidad))
-            self.actualizarRho()
+            self.actualizarRho(densidad)
 
         self.connect(self.IM_radioButton, SIGNAL("clicked()"), self.update_units)
         self.connect(self.SI_radioButton, SIGNAL("clicked()"), self.update_units)
 
         self.lineEdit_h.editingFinished.connect(lambda: self.actualizar('altura'))
         self.lineEdit_deltaT.editingFinished.connect(lambda: self.actualizar('altura'))
-        self.connect(self.lineEdit_t, SIGNAL("editingFinished()"), self.actualizarT)
+        self.lineEdit_t.editingFinished.connect(lambda: self.actualizarT(float(self.lineEdit_t.text())))
         self.lineEdit_p.editingFinished.connect(lambda: self.actualizar('presion'))
-        self.connect(self.lineEdit_rho, SIGNAL("editingFinished()"), self.actualizarRho)
+        self.lineEdit_rho.editingFinished.connect(lambda: self.actualizarRho(float(self.lineEdit_rho.text())))
         self.connect(self.acceptButton, SIGNAL("clicked()"), self, SLOT("accept()"))
 
     def actualizar(self, tipo):
@@ -86,20 +86,18 @@ class AtmosferaEstandarDialog(QDialog, layout.Ui_Dialog):
         self.si2im()
         self.write_lineEdits()
 
-    def actualizarT(self):
-        # TODO: Modificar para distintos tipos de unidades
-        calculo = 'temperatura'
-        temp = float(self.lineEdit_t.text())
+    def actualizarT(self, value):
+        temp = value
         self.atmosfera[self.units]['deltaT'] = self.atmosfera[self.units]['deltaT']+temp - self.atmosfera[self.units]['t']
         self.lineEdit_deltaT.setText(str(round(self.atmosfera[self.units]['deltaT'], 2)))
         self.atmosfera[self.units]['t'] = temp
         self.atmosfera[self.units]['rho'] = self.atmosfera[self.units]['p'] / self.atmosfera[self.units]['t']/self.R[self.units]
         self.lineEdit_rho.setText(str(self.atmosfera[self.units]['rho']))
 
-    def actualizarRho(self):
+    def actualizarRho(self, value):
         # TODO: Modificar para distintos tipos de unidades
         calculo = 'densidad'
-        self.atmosfera[self.units]['rho'] = float(round(self.lineEdit_rho.text(), 3))
+        self.atmosfera[self.units]['rho'] = value
         temp = self.atmosfera[self.units]['p'] / self.atmosfera[self.units]['rho']/self.R[self.units]
         self.atmosfera[self.units]['deltaT'] = self.atmosfera[self.units]['deltaT'] + temp - self.atmosfera[self.units]['t']
         self.lineEdit_deltaT.setText(str(round(self.atmosfera[self.units]['deltaT'], 2)))
@@ -113,7 +111,10 @@ class AtmosferaEstandarDialog(QDialog, layout.Ui_Dialog):
             self.units = "SI"
         else:
             return -1
-        # Actualizo unitlabels
+        self.update_labels()
+        self.write_lineEdits()
+
+    def update_labels(self):
         self.unitlabel_h.setText(self.length_label[self.units])
         self.unitlabel_deltaT.setText(self.temp_label[self.units])
         self.unitlabel_p.setText(self.pressure_label[self.units])
@@ -121,10 +122,8 @@ class AtmosferaEstandarDialog(QDialog, layout.Ui_Dialog):
         self.unitlabel_rho.setText(self.den_label[self.units])
         self.unitlabel_mu.setText(self.length_label[self.units])
         self.unitlabel_Vson.setText(self.speed_label[self.units])
-        self.write_lineEdits()
 
     def write_lineEdits(self):
-        # ipdb.set_trace()
         self.lineEdit_h.setText(str(self.atmosfera[self.units]['h']))
         self.lineEdit_deltaT.setText(str(self.atmosfera[self.units]['deltaT']))
         self.lineEdit_p.setText(str(self.atmosfera[self.units]['p']))
@@ -188,7 +187,7 @@ class AtmosferaEstandarDialog(QDialog, layout.Ui_Dialog):
         self.atmosfera['SI']['vson'] = vson
 
 
-if __name__=='__main__':
+if __name__ == '__main__':
     app = QApplication(sys.argv)
     dialogo = AtmosferaEstandarDialog()
     dialogo.show()
