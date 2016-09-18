@@ -31,10 +31,9 @@ __appName__ = 'Diagrama de Rafagas y Maniobras'
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
-# Creo la clase principal, llamada ""Main Dialog"
+
 class DiagramaDeRafagasyManiobrasDialog(QFrame, layout_DiagramaDeRafagasyManiobras.Ui_Dialog):
 
-    # Estas lineas son medias magicas, pero siempre van:
     def __init__(self, parent=None):
         super(DiagramaDeRafagasyManiobrasDialog, self).__init__(parent)
         self.setupUi(self)
@@ -194,35 +193,10 @@ class DiagramaDeRafagasyManiobrasDialog(QFrame, layout_DiagramaDeRafagasyManiobr
         self.clmax_flap_lineEdit.setText(str(self.diagramas.clmax_flap))
         self.clmin_lineEdit.setText(str(self.diagramas.clmin))
 
-
     def Calculos(self):
-        logger.info("CAM = {}".format(self.diagramas.CAM[self.units]))
-        logger.info("Sw = {}".format(self.diagramas.sw[self.units]))
-        logger.info("MTOW = {}".format(self.diagramas.MTOW[self.units]))
-        logger.info("MLW = {}".format(self.diagramas.MLW[self.units]))
-        logger.info("MZFW = {}".format(self.diagramas.MZFW[self.units]))
-        logger.info("W0 = {}".format(self.diagramas.W0[self.units]))
-        logger.info("a3D = {}".format(self.diagramas.a3D))
-        logger.info("clmax = {}".format(self.diagramas.clmax))
-        logger.info("clmax_flap = {}".format(self.diagramas.clmax_flap))
-        logger.info("clmin = {}".format(self.diagramas.clmin))
-        logger.info("Zmo = {}".format(self.diagramas.Zmo[self.units]))
-        logger.info("Vc = {}".format(self.diagramas.Vc[self.units]))
-
+        self.print_input_variables()
         self.diagramas.calculos()
-
-        self.axes1.clear()
-        self.diagramas.plot_diagrama_de_maniobras(self.axes1, 0.5)
-        self.diagramas.plot_diagrama_de_maniobras_con_flap(self.axes1, 0.5)
-        self.canvas1.draw()
-
-        self.axes2.clear()
-        self.diagramas.plot_diagrama_de_rafagas(self.axes2, 0.5)
-        self.canvas2.draw()
-
-        self.axes3.clear()
-        self.diagramas.plot_diagrama_de_maniobras_y_rafagas(self.axes3, 0.5)
-        self.canvas3.draw()
+        self.plot_diagrams()
 
     def seleccionAltura(self):
         dialogo = GUI_atmosfera_estandar.AtmosferaEstandarDialog(unit=self.units)
@@ -241,6 +215,34 @@ class DiagramaDeRafagasyManiobrasDialog(QFrame, layout_DiagramaDeRafagasyManiobr
         #     self.formula_comboBox.addItem(key)
         #
         # self.actualizarFormula()
+
+    def print_input_variables(self):
+        logger.info("CAM = {}".format(self.diagramas.CAM[self.units]))
+        logger.info("Sw = {}".format(self.diagramas.sw[self.units]))
+        logger.info("MTOW = {}".format(self.diagramas.MTOW[self.units]))
+        logger.info("MLW = {}".format(self.diagramas.MLW[self.units]))
+        logger.info("MZFW = {}".format(self.diagramas.MZFW[self.units]))
+        logger.info("W0 = {}".format(self.diagramas.W0[self.units]))
+        logger.info("a3D = {}".format(self.diagramas.a3D))
+        logger.info("clmax = {}".format(self.diagramas.clmax))
+        logger.info("clmax_flap = {}".format(self.diagramas.clmax_flap))
+        logger.info("clmin = {}".format(self.diagramas.clmin))
+        logger.info("Zmo = {}".format(self.diagramas.Zmo[self.units]))
+        logger.info("Vc = {}".format(self.diagramas.Vc[self.units]))
+
+    def plot_diagrams(self):
+        self.axes1.clear()
+        self.diagramas.plot_diagrama_de_maniobras(self.axes1, 0.5)
+        self.diagramas.plot_diagrama_de_maniobras_con_flap(self.axes1, 0.5)
+        self.canvas1.draw()
+
+        self.axes2.clear()
+        self.diagramas.plot_diagrama_de_rafagas(self.axes2, 0.5)
+        self.canvas2.draw()
+
+        self.axes3.clear()
+        self.diagramas.plot_diagrama_de_maniobras_y_rafagas(self.axes3, 0.5)
+        self.canvas3.draw()
 
 app = QApplication(sys.argv)
 form = DiagramaDeRafagasyManiobrasDialog()
