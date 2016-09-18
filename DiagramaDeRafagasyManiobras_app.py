@@ -20,10 +20,12 @@ matplotlib.rcParams['backend.qt4'] = 'PySide'
 
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
+from diagramas_class import Diagramas
+
 # from excepciones import NumeroNegativoError,MayorAUnoError,TemperaturaIncompatibleError
-import numpy as np # Para las cuentas
-import layout_DiagramaDeRafagasyManiobras # importo las clases creadas con Qt y pyside
-import GUI_atmosfera_estandar # todavia no voy a usar esta clase
+import layout_DiagramaDeRafagasyManiobras  # importo las clases creadas con Qt y pyside
+from atmosfera_estandar import GUI_atmosfera_estandar
+
 __appName__ = 'Diagrama de Rafagas y Maniobras'
 
 logger = logging.getLogger(__name__)
