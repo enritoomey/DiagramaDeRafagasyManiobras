@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'layout_DiagramaDeRafagasyManiobras.ui'
 #
-# Created: Wed Jul 13 23:18:19 2016
+# Created: Sun Sep 18 18:03:53 2016
 #      by: pyside-uic 0.2.15 running on PySide 1.2.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -103,6 +103,7 @@ class Ui_Dialog(object):
         self.MZFW_layout.addWidget(self.MZFW_unitlabel)
         self.W_group_layout.addLayout(self.MZFW_layout)
         self.W0_layout = QtGui.QHBoxLayout()
+        self.W0_layout.setSizeConstraint(QtGui.QLayout.SetMaximumSize)
         self.W0_layout.setObjectName("W0_layout")
         self.W0_label = QtGui.QLabel(Dialog)
         self.W0_label.setObjectName("W0_label")
@@ -223,7 +224,7 @@ class Ui_Dialog(object):
         self.h_label.setObjectName("h_label")
         self.h_layout.addWidget(self.h_label)
         self.h_lineEdit = QtGui.QLineEdit(Dialog)
-        self.h_lineEdit.setReadOnly(True)
+        self.h_lineEdit.setReadOnly(False)
         self.h_lineEdit.setObjectName("h_lineEdit")
         self.h_layout.addWidget(self.h_lineEdit)
         self.h_unitlabel = QtGui.QLabel(Dialog)
@@ -236,7 +237,7 @@ class Ui_Dialog(object):
         self.den_label.setObjectName("den_label")
         self.den_layout.addWidget(self.den_label)
         self.den_lineEdit = QtGui.QLineEdit(Dialog)
-        self.den_lineEdit.setReadOnly(True)
+        self.den_lineEdit.setReadOnly(False)
         self.den_lineEdit.setObjectName("den_lineEdit")
         self.den_layout.addWidget(self.den_lineEdit)
         self.den_unitlabel = QtGui.QLabel(Dialog)

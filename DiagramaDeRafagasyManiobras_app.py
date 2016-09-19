@@ -5,14 +5,11 @@
 """
 import logging
 import sys
-import matplotlib.pyplot as plt
 sys.path.append('./atmosfera_estandar')
 
-import matplotlib  # Para los graficos
+import matplotlib
 from PySide.QtCore import *
-from PySide.QtGui import *  # importo todas las funciones de pyside
-# from matplotlib.backends.qt4_editor.formlayout import QDialog
-from diagramas_class import Diagramas
+from PySide.QtGui import *
 matplotlib.use('Qt4Agg')
 matplotlib.rcParams['backend.qt4'] = 'PySide'
 # Estas lineas son un poco misteriosas, pero son las que me permite
@@ -22,9 +19,8 @@ from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 from diagramas_class import Diagramas
 
-# from excepciones import NumeroNegativoError,MayorAUnoError,TemperaturaIncompatibleError
 import layout_DiagramaDeRafagasyManiobras  # importo las clases creadas con Qt y pyside
-from atmosfera_estandar import GUI_atmosfera_estandar
+from atmosfera_estandar.GUI_atmosfera_estandar import AtmosferaEstandarDialog
 
 __appName__ = 'Diagrama de Rafagas y Maniobras'
 
@@ -67,12 +63,9 @@ class DiagramaDeRafagasyManiobrasDialog(QFrame, layout_DiagramaDeRafagasyManiobr
         h = {'SI': 5000, 'IM': 5000 / self.ft2m}
         den = {'SI': 1.225, 'IM': 1.225 / self.lb2kg * self.ft2m**3}
         self.diagramas = Diagramas(datos, w, h, den, units='SI')
-
         self.update_units()
+        self.atmosfera_estandar_dialog = AtmosferaEstandarDialog(unit=self.units)
 
-        # Generamos dos figuras, cada una luego asociada a un canvas, que a su vez tiene como padre una de las pestañas
-        # self.tab -> contiene la pestaña titulada "Diagrama P-S"
-        # self.tab_2 -> contiene la pestaña titulada "Diagrama T-S"
         self.fig1 = Figure((5.0, 3.0), dpi=72, facecolor=(1, 1, 1), edgecolor=(0, 0, 0))
         self.fig1.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.25)
         self.axes1 = self.fig1.add_subplot(111)
@@ -113,7 +106,7 @@ class DiagramaDeRafagasyManiobrasDialog(QFrame, layout_DiagramaDeRafagasyManiobr
         self.connect(self.IM_radioButton, SIGNAL("clicked()"), self.update_units)
         self.connect(self.SI_radioButton, SIGNAL("clicked()"), self.update_units)
         self.connect(self.Altura_Button, SIGNAL("clicked()"), self.seleccionAltura)
-        self.connect(self.grafiacar_pushButton, SIGNAL("clicked()"), self.Calculos())
+        self.connect(self.grafiacar_pushButton, SIGNAL("clicked()"), self.calculos())
 
         self.CAM_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.diagramas.CAM, float(self.CAM_lineEdit.text()), self.ft2m))
         self.sw_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.diagramas.sw, float(self.sw_lineEdit.text()), self.ft2m**2))
@@ -133,23 +126,21 @@ class DiagramaDeRafagasyManiobrasDialog(QFrame, layout_DiagramaDeRafagasyManiobr
         self.h_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.diagramas.h, float(self.h_lineEdit.text()), self.ft2m))
         self.den_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.diagramas.den, float(self.den_lineEdit.text()), self.lb2kg / self.ft2m**3))
 
-        self.grafiacar_pushButton.clicked.connect(self.Calculos)
+        self.grafiacar_pushButton.clicked.connect(self.calculos)
 
     def resizeEvent(self, event):
         self.canvas1.setGeometry(self.PlotArea.rect())
         self.canvas2.setGeometry(self.PlotArea.rect())
         self.canvas3.setGeometry(self.PlotArea.rect())
 
-    def lecturadatos(self, variable, value, unitConverter = 1.0):
+    def lecturadatos(self, variable, value, unit_converter = 1.0):
         logger.debug(value)
-        if not unitConverter:
-            variable = value
-        elif self.units == 'IM':
+        if self.units == 'IM':
             variable['IM'] = value
-            variable['SI'] = value*unitConverter
+            variable['SI'] = value*unit_converter
         else:
             variable['SI'] = value
-            variable['IM'] = value/unitConverter
+            variable['IM'] = value/unit_converter
 
     def update_units(self):
         if self.IM_radioButton.isChecked():
@@ -162,6 +153,39 @@ class DiagramaDeRafagasyManiobrasDialog(QFrame, layout_DiagramaDeRafagasyManiobr
             return -1
         self.update_unitLabels()
         self.write_lineEdits()
+
+    def calculos(self):
+        self.print_input_variables()
+        self.diagramas.calculos()
+        self.plot_diagrams()
+
+    def seleccionAltura(self):
+        # TODO: actualizar atmosfera_estandar_dialog con los valores de diagramas.h y diagramas.den
+        # update units
+        self.atmosfera_estandar_dialog.units = self.units
+        self.atmosfera_estandar_dialog.update_labels()
+        self.atmosfera_estandar_dialog.atmosfera[self.units]['h'] = self.diagramas.h[self.units]
+        self.atmosfera_estandar_dialog.write_lineEdits()
+        self.atmosfera_estandar_dialog.actualizar('altura')
+        self.atmosfera_estandar_dialog.actualizarRho(self.diagramas.den[self.units])
+        if self.atmosfera_estandar_dialog.exec_():
+            self.diagramas.h[self.units] = self.atmosfera_estandar_dialog.atmosfera[self.units]['h']
+            self.diagramas.den[self.units] = self.atmosfera_estandar_dialog.atmosfera[self.units]['rho']
+            self.write_lineEdits()
+
+    def plot_diagrams(self):
+        self.axes1.clear()
+        self.diagramas.plot_diagrama_de_maniobras(self.axes1, 0.5)
+        self.diagramas.plot_diagrama_de_maniobras_con_flap(self.axes1, 0.5)
+        self.canvas1.draw()
+
+        self.axes2.clear()
+        self.diagramas.plot_diagrama_de_rafagas(self.axes2, 0.5)
+        self.canvas2.draw()
+
+        self.axes3.clear()
+        self.diagramas.plot_diagrama_de_maniobras_y_rafagas(self.axes3, 0.5)
+        self.canvas3.draw()
 
     def update_unitLabels(self):
         self.CAM_unitlabel.setText(self.length_label[self.units])
@@ -177,6 +201,7 @@ class DiagramaDeRafagasyManiobrasDialog(QFrame, layout_DiagramaDeRafagasyManiobr
         self.Vc_unitlabel.setText(self.speed_label[self.units])
 
     def write_lineEdits(self):
+        # TODO: set decimals to print
         self.CAM_lineEdit.setText(str(self.diagramas.CAM[self.units]))
         self.sw_lineEdit.setText(str(self.diagramas.sw[self.units]))
         self.MTOW_lineEdit.setText(str(self.diagramas.MTOW[self.units]))
@@ -193,29 +218,6 @@ class DiagramaDeRafagasyManiobrasDialog(QFrame, layout_DiagramaDeRafagasyManiobr
         self.clmax_flap_lineEdit.setText(str(self.diagramas.clmax_flap))
         self.clmin_lineEdit.setText(str(self.diagramas.clmin))
 
-    def Calculos(self):
-        self.print_input_variables()
-        self.diagramas.calculos()
-        self.plot_diagrams()
-
-    def seleccionAltura(self):
-        dialogo = GUI_atmosfera_estandar.AtmosferaEstandarDialog(unit=self.units)
-        if dialogo.exec_():
-            self.lecturadatos(self.diagramas.h, dialogo.atmosfera[self.units]['h'], unitConverter=self.ft2m)
-            self.lecturadatos(self.diagramas.den, dialogo.atmosfera[self.units]['rho'], unitConverter=self.slugcuft2kgm3)
-            self.write_lineEdits()
-
-        # self.Q = []
-        # self.gamma_aire = 1.4
-        # self.R_aire = 287
-        # #Defino las formulas quimicas para selecionar en formulas_comboBox
-        # self.formulas = {"AvGas":{'c':7,'h':16,'o':0,'s':0.00},"Diesel":{'c':12,'h':21,'o':0,'s':0.00}}
-        # # Utilizo las 'keys' de self.formulas para cargar los items en la combobox
-        # for key in self.formulas.keys():
-        #     self.formula_comboBox.addItem(key)
-        #
-        # self.actualizarFormula()
-
     def print_input_variables(self):
         logger.info("CAM = {}".format(self.diagramas.CAM[self.units]))
         logger.info("Sw = {}".format(self.diagramas.sw[self.units]))
@@ -229,20 +231,6 @@ class DiagramaDeRafagasyManiobrasDialog(QFrame, layout_DiagramaDeRafagasyManiobr
         logger.info("clmin = {}".format(self.diagramas.clmin))
         logger.info("Zmo = {}".format(self.diagramas.Zmo[self.units]))
         logger.info("Vc = {}".format(self.diagramas.Vc[self.units]))
-
-    def plot_diagrams(self):
-        self.axes1.clear()
-        self.diagramas.plot_diagrama_de_maniobras(self.axes1, 0.5)
-        self.diagramas.plot_diagrama_de_maniobras_con_flap(self.axes1, 0.5)
-        self.canvas1.draw()
-
-        self.axes2.clear()
-        self.diagramas.plot_diagrama_de_rafagas(self.axes2, 0.5)
-        self.canvas2.draw()
-
-        self.axes3.clear()
-        self.diagramas.plot_diagrama_de_maniobras_y_rafagas(self.axes3, 0.5)
-        self.canvas3.draw()
 
 app = QApplication(sys.argv)
 form = DiagramaDeRafagasyManiobrasDialog()
