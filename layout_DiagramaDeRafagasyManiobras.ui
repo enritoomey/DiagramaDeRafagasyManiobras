@@ -172,30 +172,6 @@
            </item>
           </layout>
          </item>
-         <item>
-          <layout class="QHBoxLayout" name="W0_layout" stretch="0,0,0">
-           <property name="sizeConstraint">
-            <enum>QLayout::SetMaximumSize</enum>
-           </property>
-           <item>
-            <widget class="QLabel" name="W0_label">
-             <property name="text">
-              <string>W0=</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLineEdit" name="W0_lineEdit"/>
-           </item>
-           <item>
-            <widget class="QLabel" name="W0_unitlabel">
-             <property name="text">
-              <string>Kg</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
         </layout>
        </item>
        <item>
@@ -287,7 +263,6 @@
           <attribute name="title">
            <string>Gust Diagram</string>
           </attribute>
-          <zorder></zorder>
          </widget>
          <widget class="QWidget" name="manoeuvre_tab">
           <attribute name="title">

@@ -51,7 +51,6 @@ class DiagramaDeRafagasyManiobrasDialog(QFrame, layout_DiagramaDeRafagasyManiobr
             'a3D': 5.0037,
             'MTOW': {'SI': 23000, 'IM': 23000 / self.lb2kg},
             'MLW': {'SI': 23000, 'IM': 23000 / self.lb2kg},
-            'W0': {'SI': 13766.0, 'IM': 13766 / self.lb2kg},
             'MZFW': {'SI': 16376.0, 'IM': 16376.0 / self.lb2kg},
             'Vc': {'SI': 151.93, 'IM': 151.93 / self.ft2m},
             'clmax': 1.2463,
@@ -113,7 +112,6 @@ class DiagramaDeRafagasyManiobrasDialog(QFrame, layout_DiagramaDeRafagasyManiobr
         self.MTOW_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.diagramas.MTOW, float(self.MTOW_lineEdit.text()), self.lb2kg))
         self.MLW_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.diagramas.MLW, float(self.MLW_lineEdit.text()), self.lb2kg))
         self.MZFW_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.diagramas.MZFW, float(self.MZFW_lineEdit.text()), self.lb2kg))
-        self.W0_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.diagramas.W0, float(self.W0_lineEdit.text()), self.lb2kg))
 
         self.a3D_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.diagramas.a3D, float(self.a3D_lineEdit.text())))
         self.clmax_lineEdit.editingFinished.connect(lambda: self.lecturadatos(self.diagramas.clmax, float(self.clmax_lineEdit.text())))
@@ -193,7 +191,6 @@ class DiagramaDeRafagasyManiobrasDialog(QFrame, layout_DiagramaDeRafagasyManiobr
         self.MTOW_unitlabel.setText(self.weight_label[self.units])
         self.MLW_unitlabel.setText(self.weight_label[self.units])
         self.MZFW_unitlabel.setText(self.weight_label[self.units])
-        self.W0_unitlabel.setText(self.weight_label[self.units])
         self.W_unitlabel.setText(self.weight_label[self.units])
         self.Zmo_unitlabel.setText(self.length_label[self.units])
         self.h_unitlabel.setText(self.length_label[self.units])
@@ -207,7 +204,6 @@ class DiagramaDeRafagasyManiobrasDialog(QFrame, layout_DiagramaDeRafagasyManiobr
         self.MTOW_lineEdit.setText(str(self.diagramas.MTOW[self.units]))
         self.MLW_lineEdit.setText(str(self.diagramas.MLW[self.units]))
         self.MZFW_lineEdit.setText(str(self.diagramas.MZFW[self.units]))
-        self.W0_lineEdit.setText(str(self.diagramas.W0[self.units]))
         self.W_lineEdit.setText(str(self.diagramas.W[self.units]))
         self.Zmo_lineEdit.setText(str(self.diagramas.Zmo[self.units]))
         self.h_lineEdit.setText(str(self.diagramas.h[self.units]))
@@ -224,7 +220,6 @@ class DiagramaDeRafagasyManiobrasDialog(QFrame, layout_DiagramaDeRafagasyManiobr
         logger.info("MTOW = {}".format(self.diagramas.MTOW[self.units]))
         logger.info("MLW = {}".format(self.diagramas.MLW[self.units]))
         logger.info("MZFW = {}".format(self.diagramas.MZFW[self.units]))
-        logger.info("W0 = {}".format(self.diagramas.W0[self.units]))
         logger.info("a3D = {}".format(self.diagramas.a3D))
         logger.info("clmax = {}".format(self.diagramas.clmax))
         logger.info("clmax_flap = {}".format(self.diagramas.clmax_flap))

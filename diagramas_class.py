@@ -11,7 +11,6 @@ class Diagramas(object):
         self.a3D = datos["a3D"]
         self.MTOW = datos["MTOW"]
         self.MLW = datos["MLW"]
-        self.W0 = datos["W0"]
         self.MZFW = datos["MZFW"]
         self.Vc = datos["Vc"]
         self.clmax = datos["clmax"]
@@ -367,8 +366,6 @@ if __name__ == "__main__":
         MTOW['IM'] = MTOW['SI'] / lb2kg
         MLW = {'SI': 23000}
         MLW['IM'] = MLW['SI'] / lb2kg
-        W0 = {'SI': 13766.0}
-        W0['IM'] = W0['SI'] / lb2kg
         MZFW = {'SI': 16376.0}
         MZFW['IM'] = MZFW['SI'] / lb2kg
         Vc = {'SI': 151.93}
@@ -384,7 +381,6 @@ if __name__ == "__main__":
             'a3D': a3D,
             'MTOW': MTOW,
             'MLW': MLW,
-            'W0': W0,
             'MZFW': MZFW,
             'Vc': Vc,
             'clmax': clmax,

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'layout_DiagramaDeRafagasyManiobras.ui'
 #
-# Created: Sun Sep 18 18:03:53 2016
+# Created: Sun Sep 25 00:40:16 2016
 #      by: pyside-uic 0.2.15 running on PySide 1.2.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -102,19 +102,6 @@ class Ui_Dialog(object):
         self.MZFW_unitlabel.setObjectName("MZFW_unitlabel")
         self.MZFW_layout.addWidget(self.MZFW_unitlabel)
         self.W_group_layout.addLayout(self.MZFW_layout)
-        self.W0_layout = QtGui.QHBoxLayout()
-        self.W0_layout.setSizeConstraint(QtGui.QLayout.SetMaximumSize)
-        self.W0_layout.setObjectName("W0_layout")
-        self.W0_label = QtGui.QLabel(Dialog)
-        self.W0_label.setObjectName("W0_label")
-        self.W0_layout.addWidget(self.W0_label)
-        self.W0_lineEdit = QtGui.QLineEdit(Dialog)
-        self.W0_lineEdit.setObjectName("W0_lineEdit")
-        self.W0_layout.addWidget(self.W0_lineEdit)
-        self.W0_unitlabel = QtGui.QLabel(Dialog)
-        self.W0_unitlabel.setObjectName("W0_unitlabel")
-        self.W0_layout.addWidget(self.W0_unitlabel)
-        self.W_group_layout.addLayout(self.W0_layout)
         self.left_Layout.addLayout(self.W_group_layout)
         spacerItem1 = QtGui.QSpacerItem(20, 5, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Fixed)
         self.left_Layout.addItem(spacerItem1)
@@ -286,8 +273,6 @@ class Ui_Dialog(object):
         self.MLW_unitlabel.setText(QtGui.QApplication.translate("Dialog", "Kg", None, QtGui.QApplication.UnicodeUTF8))
         self.MZFW_label.setText(QtGui.QApplication.translate("Dialog", "MZFW=", None, QtGui.QApplication.UnicodeUTF8))
         self.MZFW_unitlabel.setText(QtGui.QApplication.translate("Dialog", "Kg", None, QtGui.QApplication.UnicodeUTF8))
-        self.W0_label.setText(QtGui.QApplication.translate("Dialog", "W0=", None, QtGui.QApplication.UnicodeUTF8))
-        self.W0_unitlabel.setText(QtGui.QApplication.translate("Dialog", "Kg", None, QtGui.QApplication.UnicodeUTF8))
         self.a3D_label.setText(QtGui.QApplication.translate("Dialog", "a3D =", None, QtGui.QApplication.UnicodeUTF8))
         self.clmax_label.setText(QtGui.QApplication.translate("Dialog", "Cl_max =", None, QtGui.QApplication.UnicodeUTF8))
         self.clmax_flap_label.setText(QtGui.QApplication.translate("Dialog", "Cl_max_flap =", None, QtGui.QApplication.UnicodeUTF8))
