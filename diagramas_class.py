@@ -108,6 +108,12 @@ class Diagramas(object):
         self.fg = 0.5 * (self.fgz + self.fgm)
 
     def calculos(self):
+        self.R1 = self.MLW[self.units] / self.MTOW[self.units]
+        self.R2 = self.MZFW[self.units] / self.MTOW[self.units]
+        self.fgm = np.sqrt(self.R2 * np.tan(np.pi * self.R1 / 4.0))
+        self.fgz = 1 - self.Zmo[self.units] / self.cte_fgz[self.units]
+        self.fg = 0.5 * (self.fgz + self.fgm)
+
         self.carga_alar[self.units] = self.W[self.units] / self.sw[self.units]
         self.mu_g = 2 * self.carga_alar[self.units] / (self.den[self.units] * self.CAM[self.units] * self.a3D)  # *gravedad[units])
         self.Kg = 0.88 * (self.mu_g / (5.3 + self.mu_g))
