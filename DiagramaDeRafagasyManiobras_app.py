@@ -20,7 +20,7 @@ from matplotlib.figure import Figure
 from diagramas_class import Diagramas
 
 import layout_DiagramaDeRafagasyManiobras  # importo las clases creadas con Qt y pyside
-from atmosfera_estandar.GUI_atmosfera_estandar import AtmosferaEstandarDialog
+from atmosfera_estandar.gui.GUI_atmosfera_estandar import AtmosferaEstandarDialog
 
 __appName__ = 'Diagrama de Rafagas y Maniobras'
 
