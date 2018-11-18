@@ -4,6 +4,7 @@ from scipy.optimize import fsolve
 import argparse
 import json
 
+
 class Diagramas(object):
     def __init__(self, datos, w, h, den, units='SI'):
         self.CAM = datos["CAM"]
@@ -187,13 +188,13 @@ class Diagramas(object):
         if 0 <= vel <= self.Vb[self.units]:
             return 1 - self.n_60fts(vel)
         elif vel <= self.Vc[self.units]:
-            m = (self.n_50fts(self.Vc[self.units]) - self.n_60fts(self.Vb[self.units])) / (self.Vc[self.units] - self.Vb[self.units])
-            b = self.n_50fts(self.Vc[self.units]) - m * self.Vc[self.units]
-            return 1 - m * vel + b
+            m = -(self.n_50fts(self.Vc[self.units]) - self.n_60fts(self.Vb[self.units])) / (self.Vc[self.units] - self.Vb[self.units])
+            b = -self.n_50fts(self.Vc[self.units]) - m * self.Vc[self.units]
+            return 1 + m * vel + b
         elif vel <= self.Vd[self.units]:
-            m = (self.n_25fts(self.Vd[self.units]) - self.n_50fts(self.Vc[self.units])) / (self.Vd[self.units] - self.Vc[self.units])
-            b = self.n_25fts(self.Vd[self.units]) - m * self.Vd[self.units]
-            return 1 - m * vel + b
+            m = -(self.n_25fts(self.Vd[self.units]) - self.n_50fts(self.Vc[self.units])) / (self.Vd[self.units] - self.Vc[self.units])
+            b = -self.n_25fts(self.Vd[self.units]) - m * self.Vd[self.units]
+            return 1 + m * vel + b
         return 0.0
 
     def n_stall_pos(self, vel):
